@@ -5,7 +5,7 @@ import cython
 import numpy as np
 from cython cimport parallel
 from random import randint
-from libc.stdlib cimport rand, abs
+from libc.stdlib cimport rand, abs, malloc, free
 cimport openmp
 
 @cython.boundscheck(False)
@@ -13,11 +13,19 @@ cimport openmp
 def run_world(double[:,:] world not None,
               int[:,:] entity_map not None,
               int[:,:] dictys not None,
-              int num_threads = 4):
-    cdef int n_dictys, new_x, new_y, vision_x, vision_y, influence_range
+              int num_threads = 2):
+    cdef int n_dictys, new_x, new_y, vision_x, vision_y, influence_range, rows
     cdef int i, j, k, energy, x, y
     cdef double max, vision_value, chem_food, chem_decay
-    cdef openmp.omp_lock_t entity_lock, world_lock
+    rows = world.shape[0]
+    cdef openmp.omp_lock_t *entity_lock = \
+        <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+    if not entity_lock:
+        raise MemoryError()
+    cdef openmp.omp_lock_t *world_lock = \
+        <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+    if not world_lock:
+        raise MemoryError()
     if world.shape[0] * world.shape[1] < dictys.shape[0]:
         raise ValueError('Too many dictys')
     n_dictys = dictys.shape[0]
@@ -25,8 +33,10 @@ def run_world(double[:,:] world not None,
     influence_range = 100
     chem_decay = 0.01
     chem_food = 0.1
-    openmp.omp_init_lock(&entity_lock)
-    openmp.omp_init_lock(&world_lock)
+    for i in range(rows):
+        for j in range(rows):
+            openmp.omp_init_lock(&entity_lock[i*rows+j])
+            openmp.omp_init_lock(&world_lock[i*rows+j])
     with nogil, cython.boundscheck(False), cython.wraparound(False):
         for i in parallel.prange(n_dictys, schedule = 'static', 
                                  num_threads = num_threads):
@@ -85,35 +95,57 @@ def run_world(double[:,:] world not None,
             # found a signal, go there are look for food
             if max != 0:
                 # move
-                openmp.omp_set_lock(&entity_lock)
+                # entity lock 
+                openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
                 # found food
                 if entity_map[new_x, new_y] != 2:
                     if entity_map[new_x, new_y] == 1:
                         energy = energy + 4
-                        openmp.omp_set_lock(&world_lock)
+                        # world lock
+                        openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
                         world[new_x,new_y] = world[new_x,new_y] - chem_food
+                        openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
                         if new_x != 0:
+                            openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+                            openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
                         if new_x != world.shape[0] - 1:
+                            openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+                            openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
                         if new_y != 0:
+                            openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+                            openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
                             if new_x != 0:
+                                openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
                             if new_x != world.shape[0] - 1:
+                                openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
                         if new_y != world.shape[1] - 1:
+                            openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+                            openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
                             if new_x != 0:
+                                openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
                             if new_x != world.shape[0] - 1:
+                                openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
-                        openmp.omp_unset_lock(&world_lock)
+                                openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
                     entity_map[new_x, new_y] = 2
+                    openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+                    openmp.omp_set_lock(&entity_lock[x*rows+y])
                     entity_map[x, y] = 0
+                    openmp.omp_unset_lock(&entity_lock[x*rows+y])
                     x = new_x
                     y = new_y
                 else:
+                    openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
                     if new_x == x:
                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
                     elif new_y == y:
@@ -123,33 +155,55 @@ def run_world(double[:,:] world not None,
                             new_x = x
                         else:
                             new_y = y
+                    openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
                     if entity_map[new_x, new_y] != 2:
                         if entity_map[new_x, new_y] == 1:
                             energy = energy + 4
-                            openmp.omp_set_lock(&world_lock)
+                            # world lock
+                            openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
                             world[new_x,new_y] = world[new_x,new_y] - chem_food
+                            openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
                             if new_x != 0:
+                                openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
                             if new_x != world.shape[0] - 1:
+                                openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
                             if new_y != 0:
+                                openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
                                 if new_x != 0:
+                                    openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+                                    openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
                                 if new_x != world.shape[0] - 1:
+                                    openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+                                    openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
                             if new_y != world.shape[1] - 1:
+                                openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+                                openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
                                 if new_x != 0:
+                                    openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+                                    openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
                                 if new_x != world.shape[0] - 1:
+                                    openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
-                            openmp.omp_unset_lock(&world_lock)
+                                    openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
                         entity_map[new_x, new_y] = 2
+                        openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+                        openmp.omp_set_lock(&entity_lock[x*rows+y])
                         entity_map[x, y] = 0
+                        openmp.omp_unset_lock(&entity_lock[x*rows+y])
                         x = new_x
                         y = new_y
-                openmp.omp_unset_lock(&entity_lock)
+                    else:
+                        openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
             # didn't find any chem signal go to a random place
             else:
                 if x == 0:
@@ -166,30 +220,36 @@ def run_world(double[:,:] world not None,
                     new_y = y + rand() % (1 + 1 - -1) + -1
                 # if the cell doesn't collide with another cell move
                 # move
-                openmp.omp_set_lock(&entity_lock)
+                openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
                 if entity_map[new_x, new_y] != 2:
                     entity_map[new_x, new_y] = 2
+                    openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+                    openmp.omp_set_lock(&entity_lock[x*rows+y])
                     entity_map[x, y] = 0
+                    openmp.omp_unset_lock(&entity_lock[x*rows+y])
                     x = new_x
                     y = new_y
-                openmp.omp_unset_lock(&entity_lock)
+                else:
+                    openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
             # cells spend their energy to live
             energy = energy - 1
             # starving or found cAMP
             # food signal goes from 0 to 1, more than 1 is cAMP
             if energy <= 0 or max >= 1:
-                openmp.omp_set_lock(&world_lock)
                 # generate cluster order signal to form slug
                 for k in range(-influence_range, influence_range + 1):
                     for j in range(-influence_range, influence_range + 1):
                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
+                            openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
                             if abs(k)<abs(j):
                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
                             else:
                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(k)
-                openmp.omp_unset_lock(&world_lock)
+                            openmp.omp_unset_lock(&world_lock[(x+k)*rows+y+j])
             # update cell's info
             dictys[i, 0] = x
             dictys[i, 1] = y
             dictys[i, 2] = energy
+    free(entity_lock)
+    free(world_lock)
     return 0

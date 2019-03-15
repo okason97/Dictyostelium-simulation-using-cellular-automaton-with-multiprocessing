@@ -3,13 +3,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
+from profilehooks import profile
 
-m = 128
+@profile
+def run_world(world, entity_map, dictys, num_threads = 2):
+    cells_world.run_world(world, entity_map, dictys, num_threads)
+    return world, entity_map, dictys
+
+m = 256
+num_threads = 1
 world = np.zeros((m,m))
 entity_map = np.zeros((m,m), dtype=np.intc)
-n_dictys = 256
-n_food = 128
-starting_energy = 30
+n_dictys = 1024
+n_food = 1024
+starting_energy = 10
 dictys = np.full((n_dictys,3),starting_energy, dtype=np.intc)
 
 # initialize
@@ -51,7 +58,7 @@ plt.pause(0.3)
 for i in range(100):
 
     # update
-    cells_world.run_world(world, entity_map, dictys)
+    world, entity_map, dictys = run_world(world, entity_map, dictys, num_threads)
 
     ax = fig.add_subplot(111)
     ax.imshow(entity_map)

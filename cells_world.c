@@ -1743,9 +1743,9 @@ extern int __pyx_module_is_main_cells_world;
 int __pyx_module_is_main_cells_world = 0;
 
 /* Implementation of 'cells_world' */
+static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_range;
-static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_Ellipsis;
@@ -1770,6 +1770,7 @@ static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
 static const char __pyx_k_ndim[] = "ndim";
 static const char __pyx_k_pack[] = "pack";
+static const char __pyx_k_rows[] = "rows";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
 static const char __pyx_k_stop[] = "stop";
@@ -1957,6 +1958,7 @@ static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
+static PyObject *__pyx_n_s_rows;
 static PyObject *__pyx_n_s_run_world;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
@@ -2145,7 +2147,7 @@ static PyObject *__pyx_pw_11cells_world_1run_world(PyObject *__pyx_self, PyObjec
     if (values[3]) {
       __pyx_v_num_threads = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_num_threads == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 16, __pyx_L3_error)
     } else {
-      __pyx_v_num_threads = ((int)4);
+      __pyx_v_num_threads = ((int)2);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
@@ -2181,6 +2183,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   int __pyx_v_new_x;
   int __pyx_v_new_y;
   int __pyx_v_influence_range;
+  int __pyx_v_rows;
   int __pyx_v_i;
   int __pyx_v_j;
   int __pyx_v_k;
@@ -2191,8 +2194,8 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   double __pyx_v_vision_value;
   double __pyx_v_chem_food;
   double __pyx_v_chem_decay;
-  omp_lock_t __pyx_v_entity_lock;
-  omp_lock_t __pyx_v_world_lock;
+  omp_lock_t *__pyx_v_entity_lock;
+  omp_lock_t *__pyx_v_world_lock;
   CYTHON_UNUSED PyObject *__pyx_v_vision = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -2201,18 +2204,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   int __pyx_t_3;
   int __pyx_t_4;
   int __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
+  int __pyx_t_6;
+  int __pyx_t_7;
+  int __pyx_t_8;
   Py_ssize_t __pyx_t_9;
   Py_ssize_t __pyx_t_10;
   Py_ssize_t __pyx_t_11;
   Py_ssize_t __pyx_t_12;
   Py_ssize_t __pyx_t_13;
-  int __pyx_t_14;
+  Py_ssize_t __pyx_t_14;
   Py_ssize_t __pyx_t_15;
   Py_ssize_t __pyx_t_16;
-  Py_ssize_t __pyx_t_17;
+  int __pyx_t_17;
   Py_ssize_t __pyx_t_18;
   Py_ssize_t __pyx_t_19;
   Py_ssize_t __pyx_t_20;
@@ -2318,13 +2321,13 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   Py_ssize_t __pyx_t_120;
   Py_ssize_t __pyx_t_121;
   Py_ssize_t __pyx_t_122;
-  long __pyx_t_123;
-  long __pyx_t_124;
-  int __pyx_t_125;
+  Py_ssize_t __pyx_t_123;
+  Py_ssize_t __pyx_t_124;
+  Py_ssize_t __pyx_t_125;
   long __pyx_t_126;
   long __pyx_t_127;
-  int __pyx_t_128;
-  int __pyx_t_129;
+  long __pyx_t_128;
+  long __pyx_t_129;
   int __pyx_t_130;
   Py_ssize_t __pyx_t_131;
   Py_ssize_t __pyx_t_132;
@@ -2342,9 +2345,92 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   Py_ssize_t __pyx_t_144;
   __Pyx_RefNannySetupContext("run_world", 0);
 
-  /* "cells_world.pyx":21
+  /* "cells_world.pyx":20
+ *     cdef int i, j, k, energy, x, y
  *     cdef double max, vision_value, chem_food, chem_decay
- *     cdef openmp.omp_lock_t entity_lock, world_lock
+ *     rows = world.shape[0]             # <<<<<<<<<<<<<<
+ *     cdef openmp.omp_lock_t *entity_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ */
+  __pyx_v_rows = (__pyx_v_world.shape[0]);
+
+  /* "cells_world.pyx":22
+ *     rows = world.shape[0]
+ *     cdef openmp.omp_lock_t *entity_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))             # <<<<<<<<<<<<<<
+ *     if not entity_lock:
+ *         raise MemoryError()
+ */
+  __pyx_v_entity_lock = ((omp_lock_t *)malloc(((__pyx_v_rows * __pyx_v_rows) * (sizeof(omp_lock_t)))));
+
+  /* "cells_world.pyx":23
+ *     cdef openmp.omp_lock_t *entity_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ *     if not entity_lock:             # <<<<<<<<<<<<<<
+ *         raise MemoryError()
+ *     cdef openmp.omp_lock_t *world_lock = \
+ */
+  __pyx_t_1 = ((!(__pyx_v_entity_lock != 0)) != 0);
+  if (unlikely(__pyx_t_1)) {
+
+    /* "cells_world.pyx":24
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ *     if not entity_lock:
+ *         raise MemoryError()             # <<<<<<<<<<<<<<
+ *     cdef openmp.omp_lock_t *world_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ */
+    PyErr_NoMemory(); __PYX_ERR(0, 24, __pyx_L1_error)
+
+    /* "cells_world.pyx":23
+ *     cdef openmp.omp_lock_t *entity_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ *     if not entity_lock:             # <<<<<<<<<<<<<<
+ *         raise MemoryError()
+ *     cdef openmp.omp_lock_t *world_lock = \
+ */
+  }
+
+  /* "cells_world.pyx":26
+ *         raise MemoryError()
+ *     cdef openmp.omp_lock_t *world_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))             # <<<<<<<<<<<<<<
+ *     if not world_lock:
+ *         raise MemoryError()
+ */
+  __pyx_v_world_lock = ((omp_lock_t *)malloc(((__pyx_v_rows * __pyx_v_rows) * (sizeof(omp_lock_t)))));
+
+  /* "cells_world.pyx":27
+ *     cdef openmp.omp_lock_t *world_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ *     if not world_lock:             # <<<<<<<<<<<<<<
+ *         raise MemoryError()
+ *     if world.shape[0] * world.shape[1] < dictys.shape[0]:
+ */
+  __pyx_t_1 = ((!(__pyx_v_world_lock != 0)) != 0);
+  if (unlikely(__pyx_t_1)) {
+
+    /* "cells_world.pyx":28
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ *     if not world_lock:
+ *         raise MemoryError()             # <<<<<<<<<<<<<<
+ *     if world.shape[0] * world.shape[1] < dictys.shape[0]:
+ *         raise ValueError('Too many dictys')
+ */
+    PyErr_NoMemory(); __PYX_ERR(0, 28, __pyx_L1_error)
+
+    /* "cells_world.pyx":27
+ *     cdef openmp.omp_lock_t *world_lock = \
+ *         <openmp.omp_lock_t *> malloc(rows*rows*sizeof(openmp.omp_lock_t))
+ *     if not world_lock:             # <<<<<<<<<<<<<<
+ *         raise MemoryError()
+ *     if world.shape[0] * world.shape[1] < dictys.shape[0]:
+ */
+  }
+
+  /* "cells_world.pyx":29
+ *     if not world_lock:
+ *         raise MemoryError()
  *     if world.shape[0] * world.shape[1] < dictys.shape[0]:             # <<<<<<<<<<<<<<
  *         raise ValueError('Too many dictys')
  *     n_dictys = dictys.shape[0]
@@ -2352,29 +2438,29 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   __pyx_t_1 = ((((__pyx_v_world.shape[0]) * (__pyx_v_world.shape[1])) < (__pyx_v_dictys.shape[0])) != 0);
   if (unlikely(__pyx_t_1)) {
 
-    /* "cells_world.pyx":22
- *     cdef openmp.omp_lock_t entity_lock, world_lock
+    /* "cells_world.pyx":30
+ *         raise MemoryError()
  *     if world.shape[0] * world.shape[1] < dictys.shape[0]:
  *         raise ValueError('Too many dictys')             # <<<<<<<<<<<<<<
  *     n_dictys = dictys.shape[0]
  *     vision = []
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 22, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 22, __pyx_L1_error)
+    __PYX_ERR(0, 30, __pyx_L1_error)
 
-    /* "cells_world.pyx":21
- *     cdef double max, vision_value, chem_food, chem_decay
- *     cdef openmp.omp_lock_t entity_lock, world_lock
+    /* "cells_world.pyx":29
+ *     if not world_lock:
+ *         raise MemoryError()
  *     if world.shape[0] * world.shape[1] < dictys.shape[0]:             # <<<<<<<<<<<<<<
  *         raise ValueError('Too many dictys')
  *     n_dictys = dictys.shape[0]
  */
   }
 
-  /* "cells_world.pyx":23
+  /* "cells_world.pyx":31
  *     if world.shape[0] * world.shape[1] < dictys.shape[0]:
  *         raise ValueError('Too many dictys')
  *     n_dictys = dictys.shape[0]             # <<<<<<<<<<<<<<
@@ -2383,19 +2469,19 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
   __pyx_v_n_dictys = (__pyx_v_dictys.shape[0]);
 
-  /* "cells_world.pyx":24
+  /* "cells_world.pyx":32
  *         raise ValueError('Too many dictys')
  *     n_dictys = dictys.shape[0]
  *     vision = []             # <<<<<<<<<<<<<<
  *     influence_range = 100
  *     chem_decay = 0.01
  */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_vision = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "cells_world.pyx":25
+  /* "cells_world.pyx":33
  *     n_dictys = dictys.shape[0]
  *     vision = []
  *     influence_range = 100             # <<<<<<<<<<<<<<
@@ -2404,45 +2490,71 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
   __pyx_v_influence_range = 0x64;
 
-  /* "cells_world.pyx":26
+  /* "cells_world.pyx":34
  *     vision = []
  *     influence_range = 100
  *     chem_decay = 0.01             # <<<<<<<<<<<<<<
  *     chem_food = 0.1
- *     openmp.omp_init_lock(&entity_lock)
+ *     for i in range(rows):
  */
   __pyx_v_chem_decay = 0.01;
 
-  /* "cells_world.pyx":27
+  /* "cells_world.pyx":35
  *     influence_range = 100
  *     chem_decay = 0.01
  *     chem_food = 0.1             # <<<<<<<<<<<<<<
- *     openmp.omp_init_lock(&entity_lock)
- *     openmp.omp_init_lock(&world_lock)
+ *     for i in range(rows):
+ *         for j in range(rows):
  */
   __pyx_v_chem_food = 0.1;
 
-  /* "cells_world.pyx":28
+  /* "cells_world.pyx":36
  *     chem_decay = 0.01
  *     chem_food = 0.1
- *     openmp.omp_init_lock(&entity_lock)             # <<<<<<<<<<<<<<
- *     openmp.omp_init_lock(&world_lock)
+ *     for i in range(rows):             # <<<<<<<<<<<<<<
+ *         for j in range(rows):
+ *             openmp.omp_init_lock(&entity_lock[i*rows+j])
+ */
+  __pyx_t_3 = __pyx_v_rows;
+  __pyx_t_4 = __pyx_t_3;
+  for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
+    __pyx_v_i = __pyx_t_5;
+
+    /* "cells_world.pyx":37
+ *     chem_food = 0.1
+ *     for i in range(rows):
+ *         for j in range(rows):             # <<<<<<<<<<<<<<
+ *             openmp.omp_init_lock(&entity_lock[i*rows+j])
+ *             openmp.omp_init_lock(&world_lock[i*rows+j])
+ */
+    __pyx_t_6 = __pyx_v_rows;
+    __pyx_t_7 = __pyx_t_6;
+    for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+      __pyx_v_j = __pyx_t_8;
+
+      /* "cells_world.pyx":38
+ *     for i in range(rows):
+ *         for j in range(rows):
+ *             openmp.omp_init_lock(&entity_lock[i*rows+j])             # <<<<<<<<<<<<<<
+ *             openmp.omp_init_lock(&world_lock[i*rows+j])
  *     with nogil, cython.boundscheck(False), cython.wraparound(False):
  */
-  omp_init_lock((&__pyx_v_entity_lock));
+      omp_init_lock((&(__pyx_v_entity_lock[((__pyx_v_i * __pyx_v_rows) + __pyx_v_j)])));
 
-  /* "cells_world.pyx":29
- *     chem_food = 0.1
- *     openmp.omp_init_lock(&entity_lock)
- *     openmp.omp_init_lock(&world_lock)             # <<<<<<<<<<<<<<
+      /* "cells_world.pyx":39
+ *         for j in range(rows):
+ *             openmp.omp_init_lock(&entity_lock[i*rows+j])
+ *             openmp.omp_init_lock(&world_lock[i*rows+j])             # <<<<<<<<<<<<<<
  *     with nogil, cython.boundscheck(False), cython.wraparound(False):
  *         for i in parallel.prange(n_dictys, schedule = 'static',
  */
-  omp_init_lock((&__pyx_v_world_lock));
+      omp_init_lock((&(__pyx_v_world_lock[((__pyx_v_i * __pyx_v_rows) + __pyx_v_j)])));
+    }
+  }
 
-  /* "cells_world.pyx":30
- *     openmp.omp_init_lock(&entity_lock)
- *     openmp.omp_init_lock(&world_lock)
+  /* "cells_world.pyx":40
+ *             openmp.omp_init_lock(&entity_lock[i*rows+j])
+ *             openmp.omp_init_lock(&world_lock[i*rows+j])
  *     with nogil, cython.boundscheck(False), cython.wraparound(False):             # <<<<<<<<<<<<<<
  *         for i in parallel.prange(n_dictys, schedule = 'static',
  *                                  num_threads = num_threads):
@@ -2455,8 +2567,8 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
       #endif
       /*try:*/ {
 
-        /* "cells_world.pyx":31
- *     openmp.omp_init_lock(&world_lock)
+        /* "cells_world.pyx":41
+ *             openmp.omp_init_lock(&world_lock[i*rows+j])
  *     with nogil, cython.boundscheck(False), cython.wraparound(False):
  *         for i in parallel.prange(n_dictys, schedule = 'static',             # <<<<<<<<<<<<<<
  *                                  num_threads = num_threads):
@@ -2495,40 +2607,40 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                             __pyx_v_x = ((int)0xbad0bad0);
                             __pyx_v_y = ((int)0xbad0bad0);
 
-                            /* "cells_world.pyx":33
+                            /* "cells_world.pyx":43
  *         for i in parallel.prange(n_dictys, schedule = 'static',
  *                                  num_threads = num_threads):
  *             x = dictys[i,0]             # <<<<<<<<<<<<<<
  *             y = dictys[i,1]
  *             energy = dictys[i,2]
  */
-                            __pyx_t_6 = __pyx_v_i;
-                            __pyx_t_7 = 0;
-                            __pyx_v_x = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_6 * __pyx_v_dictys.strides[0]) ) + __pyx_t_7 * __pyx_v_dictys.strides[1]) )));
+                            __pyx_t_9 = __pyx_v_i;
+                            __pyx_t_10 = 0;
+                            __pyx_v_x = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_9 * __pyx_v_dictys.strides[0]) ) + __pyx_t_10 * __pyx_v_dictys.strides[1]) )));
 
-                            /* "cells_world.pyx":34
+                            /* "cells_world.pyx":44
  *                                  num_threads = num_threads):
  *             x = dictys[i,0]
  *             y = dictys[i,1]             # <<<<<<<<<<<<<<
  *             energy = dictys[i,2]
  *             # cell's world view
  */
-                            __pyx_t_8 = __pyx_v_i;
-                            __pyx_t_9 = 1;
-                            __pyx_v_y = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_8 * __pyx_v_dictys.strides[0]) ) + __pyx_t_9 * __pyx_v_dictys.strides[1]) )));
+                            __pyx_t_11 = __pyx_v_i;
+                            __pyx_t_12 = 1;
+                            __pyx_v_y = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_11 * __pyx_v_dictys.strides[0]) ) + __pyx_t_12 * __pyx_v_dictys.strides[1]) )));
 
-                            /* "cells_world.pyx":35
+                            /* "cells_world.pyx":45
  *             x = dictys[i,0]
  *             y = dictys[i,1]
  *             energy = dictys[i,2]             # <<<<<<<<<<<<<<
  *             # cell's world view
  *             # search for strongest chem signal
  */
-                            __pyx_t_10 = __pyx_v_i;
-                            __pyx_t_11 = 2;
-                            __pyx_v_energy = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_10 * __pyx_v_dictys.strides[0]) ) + __pyx_t_11 * __pyx_v_dictys.strides[1]) )));
+                            __pyx_t_13 = __pyx_v_i;
+                            __pyx_t_14 = 2;
+                            __pyx_v_energy = (*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_13 * __pyx_v_dictys.strides[0]) ) + __pyx_t_14 * __pyx_v_dictys.strides[1]) )));
 
-                            /* "cells_world.pyx":38
+                            /* "cells_world.pyx":48
  *             # cell's world view
  *             # search for strongest chem signal
  *             max = 0             # <<<<<<<<<<<<<<
@@ -2537,36 +2649,36 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                             __pyx_v_max = 0.0;
 
-                            /* "cells_world.pyx":39
+                            /* "cells_world.pyx":49
  *             # search for strongest chem signal
  *             max = 0
  *             vision_value = world[x-1, y]             # <<<<<<<<<<<<<<
  *             if x != 0 and vision_value > max:
  *                 max = vision_value
  */
-                            __pyx_t_12 = (__pyx_v_x - 1);
-                            __pyx_t_13 = __pyx_v_y;
-                            __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_12 * __pyx_v_world.strides[0]) ) + __pyx_t_13 * __pyx_v_world.strides[1]) )));
+                            __pyx_t_15 = (__pyx_v_x - 1);
+                            __pyx_t_16 = __pyx_v_y;
+                            __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_15 * __pyx_v_world.strides[0]) ) + __pyx_t_16 * __pyx_v_world.strides[1]) )));
 
-                            /* "cells_world.pyx":40
+                            /* "cells_world.pyx":50
  *             max = 0
  *             vision_value = world[x-1, y]
  *             if x != 0 and vision_value > max:             # <<<<<<<<<<<<<<
  *                 max = vision_value
  *                 new_x = x-1
  */
-                            __pyx_t_14 = ((__pyx_v_x != 0) != 0);
-                            if (__pyx_t_14) {
+                            __pyx_t_17 = ((__pyx_v_x != 0) != 0);
+                            if (__pyx_t_17) {
                             } else {
-                              __pyx_t_1 = __pyx_t_14;
-                              goto __pyx_L12_bool_binop_done;
+                              __pyx_t_1 = __pyx_t_17;
+                              goto __pyx_L18_bool_binop_done;
                             }
-                            __pyx_t_14 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
-                            __pyx_t_1 = __pyx_t_14;
-                            __pyx_L12_bool_binop_done:;
+                            __pyx_t_17 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
+                            __pyx_t_1 = __pyx_t_17;
+                            __pyx_L18_bool_binop_done:;
                             if (__pyx_t_1) {
 
-                              /* "cells_world.pyx":41
+                              /* "cells_world.pyx":51
  *             vision_value = world[x-1, y]
  *             if x != 0 and vision_value > max:
  *                 max = vision_value             # <<<<<<<<<<<<<<
@@ -2575,7 +2687,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               __pyx_v_max = __pyx_v_vision_value;
 
-                              /* "cells_world.pyx":42
+                              /* "cells_world.pyx":52
  *             if x != 0 and vision_value > max:
  *                 max = vision_value
  *                 new_x = x-1             # <<<<<<<<<<<<<<
@@ -2584,7 +2696,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               __pyx_v_new_x = (__pyx_v_x - 1);
 
-                              /* "cells_world.pyx":43
+                              /* "cells_world.pyx":53
  *                 max = vision_value
  *                 new_x = x-1
  *                 new_y = y             # <<<<<<<<<<<<<<
@@ -2593,7 +2705,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               __pyx_v_new_y = __pyx_v_y;
 
-                              /* "cells_world.pyx":40
+                              /* "cells_world.pyx":50
  *             max = 0
  *             vision_value = world[x-1, y]
  *             if x != 0 and vision_value > max:             # <<<<<<<<<<<<<<
@@ -2602,36 +2714,36 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                             }
 
-                            /* "cells_world.pyx":44
+                            /* "cells_world.pyx":54
  *                 new_x = x-1
  *                 new_y = y
  *             vision_value = world[x+1, y]             # <<<<<<<<<<<<<<
  *             if x != world.shape[0] - 1 and vision_value > max:
  *                 max = vision_value
  */
-                            __pyx_t_15 = (__pyx_v_x + 1);
-                            __pyx_t_16 = __pyx_v_y;
-                            __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_15 * __pyx_v_world.strides[0]) ) + __pyx_t_16 * __pyx_v_world.strides[1]) )));
+                            __pyx_t_18 = (__pyx_v_x + 1);
+                            __pyx_t_19 = __pyx_v_y;
+                            __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_18 * __pyx_v_world.strides[0]) ) + __pyx_t_19 * __pyx_v_world.strides[1]) )));
 
-                            /* "cells_world.pyx":45
+                            /* "cells_world.pyx":55
  *                 new_y = y
  *             vision_value = world[x+1, y]
  *             if x != world.shape[0] - 1 and vision_value > max:             # <<<<<<<<<<<<<<
  *                 max = vision_value
  *                 new_x = x+1
  */
-                            __pyx_t_14 = ((__pyx_v_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
-                            if (__pyx_t_14) {
+                            __pyx_t_17 = ((__pyx_v_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
+                            if (__pyx_t_17) {
                             } else {
-                              __pyx_t_1 = __pyx_t_14;
-                              goto __pyx_L15_bool_binop_done;
+                              __pyx_t_1 = __pyx_t_17;
+                              goto __pyx_L21_bool_binop_done;
                             }
-                            __pyx_t_14 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
-                            __pyx_t_1 = __pyx_t_14;
-                            __pyx_L15_bool_binop_done:;
+                            __pyx_t_17 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
+                            __pyx_t_1 = __pyx_t_17;
+                            __pyx_L21_bool_binop_done:;
                             if (__pyx_t_1) {
 
-                              /* "cells_world.pyx":46
+                              /* "cells_world.pyx":56
  *             vision_value = world[x+1, y]
  *             if x != world.shape[0] - 1 and vision_value > max:
  *                 max = vision_value             # <<<<<<<<<<<<<<
@@ -2640,7 +2752,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               __pyx_v_max = __pyx_v_vision_value;
 
-                              /* "cells_world.pyx":47
+                              /* "cells_world.pyx":57
  *             if x != world.shape[0] - 1 and vision_value > max:
  *                 max = vision_value
  *                 new_x = x+1             # <<<<<<<<<<<<<<
@@ -2649,7 +2761,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               __pyx_v_new_x = (__pyx_v_x + 1);
 
-                              /* "cells_world.pyx":48
+                              /* "cells_world.pyx":58
  *                 max = vision_value
  *                 new_x = x+1
  *                 new_y = y             # <<<<<<<<<<<<<<
@@ -2658,7 +2770,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               __pyx_v_new_y = __pyx_v_y;
 
-                              /* "cells_world.pyx":45
+                              /* "cells_world.pyx":55
  *                 new_y = y
  *             vision_value = world[x+1, y]
  *             if x != world.shape[0] - 1 and vision_value > max:             # <<<<<<<<<<<<<<
@@ -2667,7 +2779,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                             }
 
-                            /* "cells_world.pyx":49
+                            /* "cells_world.pyx":59
  *                 new_x = x+1
  *                 new_y = y
  *             if y != 0:             # <<<<<<<<<<<<<<
@@ -2677,18 +2789,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                             __pyx_t_1 = ((__pyx_v_y != 0) != 0);
                             if (__pyx_t_1) {
 
-                              /* "cells_world.pyx":50
+                              /* "cells_world.pyx":60
  *                 new_y = y
  *             if y != 0:
  *                 vision_value = world[x, y-1]             # <<<<<<<<<<<<<<
  *                 if vision_value > max:
  *                     max = vision_value
  */
-                              __pyx_t_17 = __pyx_v_x;
-                              __pyx_t_18 = (__pyx_v_y - 1);
-                              __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_17 * __pyx_v_world.strides[0]) ) + __pyx_t_18 * __pyx_v_world.strides[1]) )));
+                              __pyx_t_20 = __pyx_v_x;
+                              __pyx_t_21 = (__pyx_v_y - 1);
+                              __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_20 * __pyx_v_world.strides[0]) ) + __pyx_t_21 * __pyx_v_world.strides[1]) )));
 
-                              /* "cells_world.pyx":51
+                              /* "cells_world.pyx":61
  *             if y != 0:
  *                 vision_value = world[x, y-1]
  *                 if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2698,7 +2810,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":52
+                                /* "cells_world.pyx":62
  *                 vision_value = world[x, y-1]
  *                 if vision_value > max:
  *                     max = vision_value             # <<<<<<<<<<<<<<
@@ -2707,7 +2819,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_max = __pyx_v_vision_value;
 
-                                /* "cells_world.pyx":53
+                                /* "cells_world.pyx":63
  *                 if vision_value > max:
  *                     max = vision_value
  *                     new_x = x             # <<<<<<<<<<<<<<
@@ -2716,7 +2828,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_x = __pyx_v_x;
 
-                                /* "cells_world.pyx":54
+                                /* "cells_world.pyx":64
  *                     max = vision_value
  *                     new_x = x
  *                     new_y = y-1             # <<<<<<<<<<<<<<
@@ -2725,7 +2837,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_y = (__pyx_v_y - 1);
 
-                                /* "cells_world.pyx":51
+                                /* "cells_world.pyx":61
  *             if y != 0:
  *                 vision_value = world[x, y-1]
  *                 if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2734,7 +2846,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               }
 
-                              /* "cells_world.pyx":55
+                              /* "cells_world.pyx":65
  *                     new_x = x
  *                     new_y = y-1
  *                 if x != 0:             # <<<<<<<<<<<<<<
@@ -2744,18 +2856,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_x != 0) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":56
+                                /* "cells_world.pyx":66
  *                     new_y = y-1
  *                 if x != 0:
  *                     vision_value = world[x-1, y-1]             # <<<<<<<<<<<<<<
  *                     if vision_value > max:
  *                         max = vision_value
  */
-                                __pyx_t_19 = (__pyx_v_x - 1);
-                                __pyx_t_20 = (__pyx_v_y - 1);
-                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_19 * __pyx_v_world.strides[0]) ) + __pyx_t_20 * __pyx_v_world.strides[1]) )));
+                                __pyx_t_22 = (__pyx_v_x - 1);
+                                __pyx_t_23 = (__pyx_v_y - 1);
+                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_22 * __pyx_v_world.strides[0]) ) + __pyx_t_23 * __pyx_v_world.strides[1]) )));
 
-                                /* "cells_world.pyx":57
+                                /* "cells_world.pyx":67
  *                 if x != 0:
  *                     vision_value = world[x-1, y-1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2765,7 +2877,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                 __pyx_t_1 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":58
+                                  /* "cells_world.pyx":68
  *                     vision_value = world[x-1, y-1]
  *                     if vision_value > max:
  *                         max = vision_value             # <<<<<<<<<<<<<<
@@ -2774,7 +2886,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_max = __pyx_v_vision_value;
 
-                                  /* "cells_world.pyx":59
+                                  /* "cells_world.pyx":69
  *                     if vision_value > max:
  *                         max = vision_value
  *                         new_x = x-1             # <<<<<<<<<<<<<<
@@ -2783,7 +2895,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_x = (__pyx_v_x - 1);
 
-                                  /* "cells_world.pyx":60
+                                  /* "cells_world.pyx":70
  *                         max = vision_value
  *                         new_x = x-1
  *                         new_y = y-1             # <<<<<<<<<<<<<<
@@ -2792,7 +2904,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_y = (__pyx_v_y - 1);
 
-                                  /* "cells_world.pyx":57
+                                  /* "cells_world.pyx":67
  *                 if x != 0:
  *                     vision_value = world[x-1, y-1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2801,7 +2913,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 }
 
-                                /* "cells_world.pyx":55
+                                /* "cells_world.pyx":65
  *                     new_x = x
  *                     new_y = y-1
  *                 if x != 0:             # <<<<<<<<<<<<<<
@@ -2810,7 +2922,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               }
 
-                              /* "cells_world.pyx":61
+                              /* "cells_world.pyx":71
  *                         new_x = x-1
  *                         new_y = y-1
  *                 if x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
@@ -2820,18 +2932,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":62
+                                /* "cells_world.pyx":72
  *                         new_y = y-1
  *                 if x != world.shape[0] - 1:
  *                     vision_value = world[x+1, y-1]             # <<<<<<<<<<<<<<
  *                     if vision_value > max:
  *                         max = vision_value
  */
-                                __pyx_t_21 = (__pyx_v_x + 1);
-                                __pyx_t_22 = (__pyx_v_y - 1);
-                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_21 * __pyx_v_world.strides[0]) ) + __pyx_t_22 * __pyx_v_world.strides[1]) )));
+                                __pyx_t_24 = (__pyx_v_x + 1);
+                                __pyx_t_25 = (__pyx_v_y - 1);
+                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_24 * __pyx_v_world.strides[0]) ) + __pyx_t_25 * __pyx_v_world.strides[1]) )));
 
-                                /* "cells_world.pyx":63
+                                /* "cells_world.pyx":73
  *                 if x != world.shape[0] - 1:
  *                     vision_value = world[x+1, y-1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2841,7 +2953,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                 __pyx_t_1 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":64
+                                  /* "cells_world.pyx":74
  *                     vision_value = world[x+1, y-1]
  *                     if vision_value > max:
  *                         max = vision_value             # <<<<<<<<<<<<<<
@@ -2850,7 +2962,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_max = __pyx_v_vision_value;
 
-                                  /* "cells_world.pyx":65
+                                  /* "cells_world.pyx":75
  *                     if vision_value > max:
  *                         max = vision_value
  *                         new_x = x+1             # <<<<<<<<<<<<<<
@@ -2859,7 +2971,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_x = (__pyx_v_x + 1);
 
-                                  /* "cells_world.pyx":66
+                                  /* "cells_world.pyx":76
  *                         max = vision_value
  *                         new_x = x+1
  *                         new_y = y-1             # <<<<<<<<<<<<<<
@@ -2868,7 +2980,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_y = (__pyx_v_y - 1);
 
-                                  /* "cells_world.pyx":63
+                                  /* "cells_world.pyx":73
  *                 if x != world.shape[0] - 1:
  *                     vision_value = world[x+1, y-1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2877,7 +2989,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 }
 
-                                /* "cells_world.pyx":61
+                                /* "cells_world.pyx":71
  *                         new_x = x-1
  *                         new_y = y-1
  *                 if x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
@@ -2886,7 +2998,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               }
 
-                              /* "cells_world.pyx":49
+                              /* "cells_world.pyx":59
  *                 new_x = x+1
  *                 new_y = y
  *             if y != 0:             # <<<<<<<<<<<<<<
@@ -2895,7 +3007,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                             }
 
-                            /* "cells_world.pyx":67
+                            /* "cells_world.pyx":77
  *                         new_x = x+1
  *                         new_y = y-1
  *             if y != world.shape[1] - 1:             # <<<<<<<<<<<<<<
@@ -2905,18 +3017,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                             __pyx_t_1 = ((__pyx_v_y != ((__pyx_v_world.shape[1]) - 1)) != 0);
                             if (__pyx_t_1) {
 
-                              /* "cells_world.pyx":68
+                              /* "cells_world.pyx":78
  *                         new_y = y-1
  *             if y != world.shape[1] - 1:
  *                 vision_value = world[x, y+1]             # <<<<<<<<<<<<<<
  *                 if vision_value > max:
  *                     max = vision_value
  */
-                              __pyx_t_23 = __pyx_v_x;
-                              __pyx_t_24 = (__pyx_v_y + 1);
-                              __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_23 * __pyx_v_world.strides[0]) ) + __pyx_t_24 * __pyx_v_world.strides[1]) )));
+                              __pyx_t_26 = __pyx_v_x;
+                              __pyx_t_27 = (__pyx_v_y + 1);
+                              __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_26 * __pyx_v_world.strides[0]) ) + __pyx_t_27 * __pyx_v_world.strides[1]) )));
 
-                              /* "cells_world.pyx":69
+                              /* "cells_world.pyx":79
  *             if y != world.shape[1] - 1:
  *                 vision_value = world[x, y+1]
  *                 if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2926,7 +3038,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":70
+                                /* "cells_world.pyx":80
  *                 vision_value = world[x, y+1]
  *                 if vision_value > max:
  *                     max = vision_value             # <<<<<<<<<<<<<<
@@ -2935,7 +3047,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_max = __pyx_v_vision_value;
 
-                                /* "cells_world.pyx":71
+                                /* "cells_world.pyx":81
  *                 if vision_value > max:
  *                     max = vision_value
  *                     new_x = x             # <<<<<<<<<<<<<<
@@ -2944,7 +3056,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_x = __pyx_v_x;
 
-                                /* "cells_world.pyx":72
+                                /* "cells_world.pyx":82
  *                     max = vision_value
  *                     new_x = x
  *                     new_y = y+1             # <<<<<<<<<<<<<<
@@ -2953,7 +3065,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_y = (__pyx_v_y + 1);
 
-                                /* "cells_world.pyx":69
+                                /* "cells_world.pyx":79
  *             if y != world.shape[1] - 1:
  *                 vision_value = world[x, y+1]
  *                 if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2962,7 +3074,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               }
 
-                              /* "cells_world.pyx":73
+                              /* "cells_world.pyx":83
  *                     new_x = x
  *                     new_y = y+1
  *                 if x != 0:             # <<<<<<<<<<<<<<
@@ -2972,18 +3084,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_x != 0) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":74
+                                /* "cells_world.pyx":84
  *                     new_y = y+1
  *                 if x != 0:
  *                     vision_value = world[x-1, y+1]             # <<<<<<<<<<<<<<
  *                     if vision_value > max:
  *                         max = vision_value
  */
-                                __pyx_t_25 = (__pyx_v_x - 1);
-                                __pyx_t_26 = (__pyx_v_y + 1);
-                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_25 * __pyx_v_world.strides[0]) ) + __pyx_t_26 * __pyx_v_world.strides[1]) )));
+                                __pyx_t_28 = (__pyx_v_x - 1);
+                                __pyx_t_29 = (__pyx_v_y + 1);
+                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_28 * __pyx_v_world.strides[0]) ) + __pyx_t_29 * __pyx_v_world.strides[1]) )));
 
-                                /* "cells_world.pyx":75
+                                /* "cells_world.pyx":85
  *                 if x != 0:
  *                     vision_value = world[x-1, y+1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -2993,7 +3105,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                 __pyx_t_1 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":76
+                                  /* "cells_world.pyx":86
  *                     vision_value = world[x-1, y+1]
  *                     if vision_value > max:
  *                         max = vision_value             # <<<<<<<<<<<<<<
@@ -3002,7 +3114,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_max = __pyx_v_vision_value;
 
-                                  /* "cells_world.pyx":77
+                                  /* "cells_world.pyx":87
  *                     if vision_value > max:
  *                         max = vision_value
  *                         new_x = x-1             # <<<<<<<<<<<<<<
@@ -3011,7 +3123,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_x = (__pyx_v_x - 1);
 
-                                  /* "cells_world.pyx":78
+                                  /* "cells_world.pyx":88
  *                         max = vision_value
  *                         new_x = x-1
  *                         new_y = y+1             # <<<<<<<<<<<<<<
@@ -3020,7 +3132,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_y = (__pyx_v_y + 1);
 
-                                  /* "cells_world.pyx":75
+                                  /* "cells_world.pyx":85
  *                 if x != 0:
  *                     vision_value = world[x-1, y+1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -3029,7 +3141,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 }
 
-                                /* "cells_world.pyx":73
+                                /* "cells_world.pyx":83
  *                     new_x = x
  *                     new_y = y+1
  *                 if x != 0:             # <<<<<<<<<<<<<<
@@ -3038,7 +3150,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               }
 
-                              /* "cells_world.pyx":79
+                              /* "cells_world.pyx":89
  *                         new_x = x-1
  *                         new_y = y+1
  *                 if x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
@@ -3048,18 +3160,18 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":80
+                                /* "cells_world.pyx":90
  *                         new_y = y+1
  *                 if x != world.shape[0] - 1:
  *                     vision_value = world[x+1, y+1]             # <<<<<<<<<<<<<<
  *                     if vision_value > max:
  *                         max = vision_value
  */
-                                __pyx_t_27 = (__pyx_v_x + 1);
-                                __pyx_t_28 = (__pyx_v_y + 1);
-                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_27 * __pyx_v_world.strides[0]) ) + __pyx_t_28 * __pyx_v_world.strides[1]) )));
+                                __pyx_t_30 = (__pyx_v_x + 1);
+                                __pyx_t_31 = (__pyx_v_y + 1);
+                                __pyx_v_vision_value = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_30 * __pyx_v_world.strides[0]) ) + __pyx_t_31 * __pyx_v_world.strides[1]) )));
 
-                                /* "cells_world.pyx":81
+                                /* "cells_world.pyx":91
  *                 if x != world.shape[0] - 1:
  *                     vision_value = world[x+1, y+1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -3069,7 +3181,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                 __pyx_t_1 = ((__pyx_v_vision_value > __pyx_v_max) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":82
+                                  /* "cells_world.pyx":92
  *                     vision_value = world[x+1, y+1]
  *                     if vision_value > max:
  *                         max = vision_value             # <<<<<<<<<<<<<<
@@ -3078,7 +3190,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_max = __pyx_v_vision_value;
 
-                                  /* "cells_world.pyx":83
+                                  /* "cells_world.pyx":93
  *                     if vision_value > max:
  *                         max = vision_value
  *                         new_x = x+1             # <<<<<<<<<<<<<<
@@ -3087,7 +3199,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_x = (__pyx_v_x + 1);
 
-                                  /* "cells_world.pyx":84
+                                  /* "cells_world.pyx":94
  *                         max = vision_value
  *                         new_x = x+1
  *                         new_y = y+1             # <<<<<<<<<<<<<<
@@ -3096,7 +3208,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_y = (__pyx_v_y + 1);
 
-                                  /* "cells_world.pyx":81
+                                  /* "cells_world.pyx":91
  *                 if x != world.shape[0] - 1:
  *                     vision_value = world[x+1, y+1]
  *                     if vision_value > max:             # <<<<<<<<<<<<<<
@@ -3105,7 +3217,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 }
 
-                                /* "cells_world.pyx":79
+                                /* "cells_world.pyx":89
  *                         new_x = x-1
  *                         new_y = y+1
  *                 if x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
@@ -3114,7 +3226,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                               }
 
-                              /* "cells_world.pyx":67
+                              /* "cells_world.pyx":77
  *                         new_x = x+1
  *                         new_y = y-1
  *             if y != world.shape[1] - 1:             # <<<<<<<<<<<<<<
@@ -3123,417 +3235,597 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                             }
 
-                            /* "cells_world.pyx":86
+                            /* "cells_world.pyx":96
  *                         new_y = y+1
  *             # found a signal, go there are look for food
  *             if max != 0:             # <<<<<<<<<<<<<<
  *                 # move
- *                 openmp.omp_set_lock(&entity_lock)
+ *                 # entity lock
  */
                             __pyx_t_1 = ((__pyx_v_max != 0.0) != 0);
                             if (__pyx_t_1) {
 
-                              /* "cells_world.pyx":88
- *             if max != 0:
+                              /* "cells_world.pyx":99
  *                 # move
- *                 openmp.omp_set_lock(&entity_lock)             # <<<<<<<<<<<<<<
+ *                 # entity lock
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
  *                 # found food
  *                 if entity_map[new_x, new_y] != 2:
  */
-                              omp_set_lock((&__pyx_v_entity_lock));
+                              omp_set_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
 
-                              /* "cells_world.pyx":90
- *                 openmp.omp_set_lock(&entity_lock)
+                              /* "cells_world.pyx":101
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                 # found food
  *                 if entity_map[new_x, new_y] != 2:             # <<<<<<<<<<<<<<
  *                     if entity_map[new_x, new_y] == 1:
  *                         energy = energy + 4
  */
-                              __pyx_t_29 = __pyx_v_new_x;
-                              __pyx_t_30 = __pyx_v_new_y;
-                              __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_29 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_30 * __pyx_v_entity_map.strides[1]) ))) != 2) != 0);
+                              __pyx_t_32 = __pyx_v_new_x;
+                              __pyx_t_33 = __pyx_v_new_y;
+                              __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_32 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_33 * __pyx_v_entity_map.strides[1]) ))) != 2) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":91
+                                /* "cells_world.pyx":102
  *                 # found food
  *                 if entity_map[new_x, new_y] != 2:
  *                     if entity_map[new_x, new_y] == 1:             # <<<<<<<<<<<<<<
  *                         energy = energy + 4
- *                         openmp.omp_set_lock(&world_lock)
+ *                         # world lock
  */
-                                __pyx_t_31 = __pyx_v_new_x;
-                                __pyx_t_32 = __pyx_v_new_y;
-                                __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_31 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_32 * __pyx_v_entity_map.strides[1]) ))) == 1) != 0);
+                                __pyx_t_34 = __pyx_v_new_x;
+                                __pyx_t_35 = __pyx_v_new_y;
+                                __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_34 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_35 * __pyx_v_entity_map.strides[1]) ))) == 1) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":92
+                                  /* "cells_world.pyx":103
  *                 if entity_map[new_x, new_y] != 2:
  *                     if entity_map[new_x, new_y] == 1:
  *                         energy = energy + 4             # <<<<<<<<<<<<<<
- *                         openmp.omp_set_lock(&world_lock)
- *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                         # world lock
+ *                         openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
  */
                                   __pyx_v_energy = (__pyx_v_energy + 4);
 
-                                  /* "cells_world.pyx":93
- *                     if entity_map[new_x, new_y] == 1:
+                                  /* "cells_world.pyx":105
  *                         energy = energy + 4
- *                         openmp.omp_set_lock(&world_lock)             # <<<<<<<<<<<<<<
+ *                         # world lock
+ *                         openmp.omp_set_lock(&world_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
  *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
- *                         if new_x != 0:
+ *                         openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  */
-                                  omp_set_lock((&__pyx_v_world_lock));
+                                  omp_set_lock((&(__pyx_v_world_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
 
-                                  /* "cells_world.pyx":94
- *                         energy = energy + 4
- *                         openmp.omp_set_lock(&world_lock)
+                                  /* "cells_world.pyx":106
+ *                         # world lock
+ *                         openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
  *                         world[new_x,new_y] = world[new_x,new_y] - chem_food             # <<<<<<<<<<<<<<
+ *                         openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  *                         if new_x != 0:
- *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
  */
-                                  __pyx_t_33 = __pyx_v_new_x;
-                                  __pyx_t_34 = __pyx_v_new_y;
-                                  __pyx_t_35 = __pyx_v_new_x;
-                                  __pyx_t_36 = __pyx_v_new_y;
-                                  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_35 * __pyx_v_world.strides[0]) ) + __pyx_t_36 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_33 * __pyx_v_world.strides[0]) ) + __pyx_t_34 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_food);
+                                  __pyx_t_36 = __pyx_v_new_x;
+                                  __pyx_t_37 = __pyx_v_new_y;
+                                  __pyx_t_38 = __pyx_v_new_x;
+                                  __pyx_t_39 = __pyx_v_new_y;
+                                  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_38 * __pyx_v_world.strides[0]) ) + __pyx_t_39 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_36 * __pyx_v_world.strides[0]) ) + __pyx_t_37 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_food);
 
-                                  /* "cells_world.pyx":95
- *                         openmp.omp_set_lock(&world_lock)
+                                  /* "cells_world.pyx":107
+ *                         openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
  *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                         openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                         if new_x != 0:
+ *                             openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ */
+                                  omp_unset_lock((&(__pyx_v_world_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                  /* "cells_world.pyx":108
+ *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                         openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  *                         if new_x != 0:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
  *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
- *                         if new_x != world.shape[0] - 1:
  */
                                   __pyx_t_1 = ((__pyx_v_new_x != 0) != 0);
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":96
- *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
+                                    /* "cells_world.pyx":109
+ *                         openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  *                         if new_x != 0:
- *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay             # <<<<<<<<<<<<<<
- *                         if new_x != world.shape[0] - 1:
- *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
- */
-                                    __pyx_t_37 = (__pyx_v_new_x - 1);
-                                    __pyx_t_38 = __pyx_v_new_y;
-                                    __pyx_t_39 = (__pyx_v_new_x - 1);
-                                    __pyx_t_40 = __pyx_v_new_y;
-                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_39 * __pyx_v_world.strides[0]) ) + __pyx_t_40 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_37 * __pyx_v_world.strides[0]) ) + __pyx_t_38 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                    /* "cells_world.pyx":95
- *                         openmp.omp_set_lock(&world_lock)
- *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
- *                         if new_x != 0:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])             # <<<<<<<<<<<<<<
  *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
+ */
+                                    omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                    /* "cells_world.pyx":110
+ *                         if new_x != 0:
+ *                             openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay             # <<<<<<<<<<<<<<
+ *                             openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
  *                         if new_x != world.shape[0] - 1:
+ */
+                                    __pyx_t_40 = (__pyx_v_new_x - 1);
+                                    __pyx_t_41 = __pyx_v_new_y;
+                                    __pyx_t_42 = (__pyx_v_new_x - 1);
+                                    __pyx_t_43 = __pyx_v_new_y;
+                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_42 * __pyx_v_world.strides[0]) ) + __pyx_t_43 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_40 * __pyx_v_world.strides[0]) ) + __pyx_t_41 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                    /* "cells_world.pyx":111
+ *                             openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])             # <<<<<<<<<<<<<<
+ *                         if new_x != world.shape[0] - 1:
+ *                             openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ */
+                                    omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                    /* "cells_world.pyx":108
+ *                         world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                         openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
+ *                         if new_x != 0:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
  */
                                   }
 
-                                  /* "cells_world.pyx":97
- *                         if new_x != 0:
+                                  /* "cells_world.pyx":112
  *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
  *                         if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
  *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
- *                         if new_y != 0:
  */
                                   __pyx_t_1 = ((__pyx_v_new_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":98
- *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+                                    /* "cells_world.pyx":113
+ *                             openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
  *                         if new_x != world.shape[0] - 1:
- *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay             # <<<<<<<<<<<<<<
- *                         if new_y != 0:
- *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- */
-                                    __pyx_t_41 = (__pyx_v_new_x + 1);
-                                    __pyx_t_42 = __pyx_v_new_y;
-                                    __pyx_t_43 = (__pyx_v_new_x + 1);
-                                    __pyx_t_44 = __pyx_v_new_y;
-                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_43 * __pyx_v_world.strides[0]) ) + __pyx_t_44 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_41 * __pyx_v_world.strides[0]) ) + __pyx_t_42 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                    /* "cells_world.pyx":97
- *                         if new_x != 0:
- *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
- *                         if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])             # <<<<<<<<<<<<<<
  *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
+ */
+                                    omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                    /* "cells_world.pyx":114
+ *                         if new_x != world.shape[0] - 1:
+ *                             openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay             # <<<<<<<<<<<<<<
+ *                             openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                         if new_y != 0:
+ */
+                                    __pyx_t_44 = (__pyx_v_new_x + 1);
+                                    __pyx_t_45 = __pyx_v_new_y;
+                                    __pyx_t_46 = (__pyx_v_new_x + 1);
+                                    __pyx_t_47 = __pyx_v_new_y;
+                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_46 * __pyx_v_world.strides[0]) ) + __pyx_t_47 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_44 * __pyx_v_world.strides[0]) ) + __pyx_t_45 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                    /* "cells_world.pyx":115
+ *                             openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])             # <<<<<<<<<<<<<<
+ *                         if new_y != 0:
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
+ */
+                                    omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                    /* "cells_world.pyx":112
+ *                             world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                         if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
  */
                                   }
 
-                                  /* "cells_world.pyx":99
- *                         if new_x != world.shape[0] - 1:
+                                  /* "cells_world.pyx":116
  *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                         if new_y != 0:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
  *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- *                             if new_x != 0:
  */
                                   __pyx_t_1 = ((__pyx_v_new_y != 0) != 0);
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":100
- *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+                                    /* "cells_world.pyx":117
+ *                             openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                         if new_y != 0:
- *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_x != 0:
- *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
- */
-                                    __pyx_t_45 = __pyx_v_new_x;
-                                    __pyx_t_46 = (__pyx_v_new_y - 1);
-                                    __pyx_t_47 = __pyx_v_new_x;
-                                    __pyx_t_48 = (__pyx_v_new_y - 1);
-                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_47 * __pyx_v_world.strides[0]) ) + __pyx_t_48 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_45 * __pyx_v_world.strides[0]) ) + __pyx_t_46 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                    /* "cells_world.pyx":101
- *                         if new_y != 0:
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])             # <<<<<<<<<<<<<<
  *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
+ */
+                                    omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                    /* "cells_world.pyx":118
+ *                         if new_y != 0:
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
+ *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
+ *                             if new_x != 0:
+ */
+                                    __pyx_t_48 = __pyx_v_new_x;
+                                    __pyx_t_49 = (__pyx_v_new_y - 1);
+                                    __pyx_t_50 = __pyx_v_new_x;
+                                    __pyx_t_51 = (__pyx_v_new_y - 1);
+                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_50 * __pyx_v_world.strides[0]) ) + __pyx_t_51 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_48 * __pyx_v_world.strides[0]) ) + __pyx_t_49 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                    /* "cells_world.pyx":119
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
+ *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])             # <<<<<<<<<<<<<<
+ *                             if new_x != 0:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ */
+                                    omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                    /* "cells_world.pyx":120
+ *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
  *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
- *                             if new_x != world.shape[0] - 1:
  */
                                     __pyx_t_1 = ((__pyx_v_new_x != 0) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":102
- *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+                                      /* "cells_world.pyx":121
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
  *                             if new_x != 0:
- *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_x != world.shape[0] - 1:
- *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
- */
-                                      __pyx_t_49 = (__pyx_v_new_x - 1);
-                                      __pyx_t_50 = (__pyx_v_new_y - 1);
-                                      __pyx_t_51 = (__pyx_v_new_x - 1);
-                                      __pyx_t_52 = (__pyx_v_new_y - 1);
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_51 * __pyx_v_world.strides[0]) ) + __pyx_t_52 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_49 * __pyx_v_world.strides[0]) ) + __pyx_t_50 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":101
- *                         if new_y != 0:
- *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])             # <<<<<<<<<<<<<<
  *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                      /* "cells_world.pyx":122
+ *                             if new_x != 0:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                             if new_x != world.shape[0] - 1:
+ */
+                                      __pyx_t_52 = (__pyx_v_new_x - 1);
+                                      __pyx_t_53 = (__pyx_v_new_y - 1);
+                                      __pyx_t_54 = (__pyx_v_new_x - 1);
+                                      __pyx_t_55 = (__pyx_v_new_y - 1);
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_54 * __pyx_v_world.strides[0]) ) + __pyx_t_55 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_52 * __pyx_v_world.strides[0]) ) + __pyx_t_53 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":123
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])             # <<<<<<<<<<<<<<
+ *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                      /* "cells_world.pyx":120
+ *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
+ *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
  */
                                     }
 
-                                    /* "cells_world.pyx":103
- *                             if new_x != 0:
+                                    /* "cells_world.pyx":124
  *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
- *                         if new_y != world.shape[1] - 1:
  */
                                     __pyx_t_1 = ((__pyx_v_new_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":104
- *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+                                      /* "cells_world.pyx":125
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                             if new_x != world.shape[0] - 1:
- *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
- *                         if new_y != world.shape[1] - 1:
- *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- */
-                                      __pyx_t_53 = (__pyx_v_new_x + 1);
-                                      __pyx_t_54 = (__pyx_v_new_y - 1);
-                                      __pyx_t_55 = (__pyx_v_new_x + 1);
-                                      __pyx_t_56 = (__pyx_v_new_y - 1);
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_55 * __pyx_v_world.strides[0]) ) + __pyx_t_56 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_53 * __pyx_v_world.strides[0]) ) + __pyx_t_54 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":103
- *                             if new_x != 0:
- *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
- *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])             # <<<<<<<<<<<<<<
  *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                      /* "cells_world.pyx":126
+ *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                         if new_y != world.shape[1] - 1:
+ */
+                                      __pyx_t_56 = (__pyx_v_new_x + 1);
+                                      __pyx_t_57 = (__pyx_v_new_y - 1);
+                                      __pyx_t_58 = (__pyx_v_new_x + 1);
+                                      __pyx_t_59 = (__pyx_v_new_y - 1);
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_58 * __pyx_v_world.strides[0]) ) + __pyx_t_59 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_56 * __pyx_v_world.strides[0]) ) + __pyx_t_57 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":127
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])             # <<<<<<<<<<<<<<
+ *                         if new_y != world.shape[1] - 1:
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                      /* "cells_world.pyx":124
+ *                                 world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
  */
                                     }
 
-                                    /* "cells_world.pyx":99
- *                         if new_x != world.shape[0] - 1:
+                                    /* "cells_world.pyx":116
  *                             world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                         if new_y != 0:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
  *                             world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- *                             if new_x != 0:
  */
                                   }
 
-                                  /* "cells_world.pyx":105
- *                             if new_x != world.shape[0] - 1:
+                                  /* "cells_world.pyx":128
  *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                         if new_y != world.shape[1] - 1:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
  *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- *                             if new_x != 0:
  */
                                   __pyx_t_1 = ((__pyx_v_new_y != ((__pyx_v_world.shape[1]) - 1)) != 0);
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":106
- *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+                                    /* "cells_world.pyx":129
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                         if new_y != world.shape[1] - 1:
- *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_x != 0:
- *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
- */
-                                    __pyx_t_57 = __pyx_v_new_x;
-                                    __pyx_t_58 = (__pyx_v_new_y + 1);
-                                    __pyx_t_59 = __pyx_v_new_x;
-                                    __pyx_t_60 = (__pyx_v_new_y + 1);
-                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_59 * __pyx_v_world.strides[0]) ) + __pyx_t_60 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_57 * __pyx_v_world.strides[0]) ) + __pyx_t_58 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                    /* "cells_world.pyx":107
- *                         if new_y != world.shape[1] - 1:
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])             # <<<<<<<<<<<<<<
  *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
+ */
+                                    omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                    /* "cells_world.pyx":130
+ *                         if new_y != world.shape[1] - 1:
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
+ *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
+ *                             if new_x != 0:
+ */
+                                    __pyx_t_60 = __pyx_v_new_x;
+                                    __pyx_t_61 = (__pyx_v_new_y + 1);
+                                    __pyx_t_62 = __pyx_v_new_x;
+                                    __pyx_t_63 = (__pyx_v_new_y + 1);
+                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_62 * __pyx_v_world.strides[0]) ) + __pyx_t_63 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_60 * __pyx_v_world.strides[0]) ) + __pyx_t_61 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                    /* "cells_world.pyx":131
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
+ *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                             if new_x != 0:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ */
+                                    omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                    /* "cells_world.pyx":132
+ *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
  *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
- *                             if new_x != world.shape[0] - 1:
  */
                                     __pyx_t_1 = ((__pyx_v_new_x != 0) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":108
- *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+                                      /* "cells_world.pyx":133
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
  *                             if new_x != 0:
- *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_x != world.shape[0] - 1:
- *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- */
-                                      __pyx_t_61 = (__pyx_v_new_x - 1);
-                                      __pyx_t_62 = (__pyx_v_new_y + 1);
-                                      __pyx_t_63 = (__pyx_v_new_x - 1);
-                                      __pyx_t_64 = (__pyx_v_new_y + 1);
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_63 * __pyx_v_world.strides[0]) ) + __pyx_t_64 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_61 * __pyx_v_world.strides[0]) ) + __pyx_t_62 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":107
- *                         if new_y != world.shape[1] - 1:
- *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])             # <<<<<<<<<<<<<<
  *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                      /* "cells_world.pyx":134
+ *                             if new_x != 0:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                             if new_x != world.shape[0] - 1:
+ */
+                                      __pyx_t_64 = (__pyx_v_new_x - 1);
+                                      __pyx_t_65 = (__pyx_v_new_y + 1);
+                                      __pyx_t_66 = (__pyx_v_new_x - 1);
+                                      __pyx_t_67 = (__pyx_v_new_y + 1);
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_66 * __pyx_v_world.strides[0]) ) + __pyx_t_67 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_64 * __pyx_v_world.strides[0]) ) + __pyx_t_65 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":135
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                      /* "cells_world.pyx":132
+ *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
+ *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
  */
                                     }
 
-                                    /* "cells_world.pyx":109
- *                             if new_x != 0:
+                                    /* "cells_world.pyx":136
  *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                         openmp.omp_unset_lock(&world_lock)
  */
                                     __pyx_t_1 = ((__pyx_v_new_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":110
- *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+                                      /* "cells_world.pyx":137
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                      /* "cells_world.pyx":138
+ *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
- *                         openmp.omp_unset_lock(&world_lock)
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                     entity_map[new_x, new_y] = 2
  */
-                                      __pyx_t_65 = (__pyx_v_new_x + 1);
-                                      __pyx_t_66 = (__pyx_v_new_y + 1);
-                                      __pyx_t_67 = (__pyx_v_new_x + 1);
-                                      __pyx_t_68 = (__pyx_v_new_y + 1);
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_67 * __pyx_v_world.strides[0]) ) + __pyx_t_68 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_65 * __pyx_v_world.strides[0]) ) + __pyx_t_66 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+                                      __pyx_t_68 = (__pyx_v_new_x + 1);
+                                      __pyx_t_69 = (__pyx_v_new_y + 1);
+                                      __pyx_t_70 = (__pyx_v_new_x + 1);
+                                      __pyx_t_71 = (__pyx_v_new_y + 1);
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_70 * __pyx_v_world.strides[0]) ) + __pyx_t_71 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_68 * __pyx_v_world.strides[0]) ) + __pyx_t_69 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
 
-                                      /* "cells_world.pyx":109
- *                             if new_x != 0:
- *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
- *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+                                      /* "cells_world.pyx":139
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                         openmp.omp_unset_lock(&world_lock)
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                     entity_map[new_x, new_y] = 2
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                      /* "cells_world.pyx":136
+ *                                 world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
  */
                                     }
 
-                                    /* "cells_world.pyx":105
- *                             if new_x != world.shape[0] - 1:
+                                    /* "cells_world.pyx":128
  *                                 world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                         if new_y != world.shape[1] - 1:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
  *                             world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- *                             if new_x != 0:
  */
                                   }
 
-                                  /* "cells_world.pyx":111
- *                             if new_x != world.shape[0] - 1:
- *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                         openmp.omp_unset_lock(&world_lock)             # <<<<<<<<<<<<<<
- *                     entity_map[new_x, new_y] = 2
- *                     entity_map[x, y] = 0
- */
-                                  omp_unset_lock((&__pyx_v_world_lock));
-
-                                  /* "cells_world.pyx":91
+                                  /* "cells_world.pyx":102
  *                 # found food
  *                 if entity_map[new_x, new_y] != 2:
  *                     if entity_map[new_x, new_y] == 1:             # <<<<<<<<<<<<<<
  *                         energy = energy + 4
- *                         openmp.omp_set_lock(&world_lock)
+ *                         # world lock
  */
                                 }
 
-                                /* "cells_world.pyx":112
+                                /* "cells_world.pyx":140
  *                                 world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                         openmp.omp_unset_lock(&world_lock)
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                     entity_map[new_x, new_y] = 2             # <<<<<<<<<<<<<<
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
+ */
+                                __pyx_t_72 = __pyx_v_new_x;
+                                __pyx_t_73 = __pyx_v_new_y;
+                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_72 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_73 * __pyx_v_entity_map.strides[1]) )) = 2;
+
+                                /* "cells_world.pyx":141
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ *                     entity_map[new_x, new_y] = 2
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
  *                     entity_map[x, y] = 0
+ */
+                                omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                /* "cells_world.pyx":142
+ *                     entity_map[new_x, new_y] = 2
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])             # <<<<<<<<<<<<<<
+ *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
+ */
+                                omp_set_lock((&(__pyx_v_entity_lock[((__pyx_v_x * __pyx_v_rows) + __pyx_v_y)])));
+
+                                /* "cells_world.pyx":143
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
+ *                     entity_map[x, y] = 0             # <<<<<<<<<<<<<<
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                     x = new_x
  */
-                                __pyx_t_69 = __pyx_v_new_x;
-                                __pyx_t_70 = __pyx_v_new_y;
-                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_69 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_70 * __pyx_v_entity_map.strides[1]) )) = 2;
+                                __pyx_t_74 = __pyx_v_x;
+                                __pyx_t_75 = __pyx_v_y;
+                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_74 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_75 * __pyx_v_entity_map.strides[1]) )) = 0;
 
-                                /* "cells_world.pyx":113
- *                         openmp.omp_unset_lock(&world_lock)
- *                     entity_map[new_x, new_y] = 2
- *                     entity_map[x, y] = 0             # <<<<<<<<<<<<<<
+                                /* "cells_world.pyx":144
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
+ *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])             # <<<<<<<<<<<<<<
  *                     x = new_x
  *                     y = new_y
  */
-                                __pyx_t_71 = __pyx_v_x;
-                                __pyx_t_72 = __pyx_v_y;
-                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_71 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_72 * __pyx_v_entity_map.strides[1]) )) = 0;
+                                omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_x * __pyx_v_rows) + __pyx_v_y)])));
 
-                                /* "cells_world.pyx":114
- *                     entity_map[new_x, new_y] = 2
+                                /* "cells_world.pyx":145
  *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                     x = new_x             # <<<<<<<<<<<<<<
  *                     y = new_y
  *                 else:
  */
                                 __pyx_v_x = __pyx_v_new_x;
 
-                                /* "cells_world.pyx":115
- *                     entity_map[x, y] = 0
+                                /* "cells_world.pyx":146
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                     x = new_x
  *                     y = new_y             # <<<<<<<<<<<<<<
  *                 else:
- *                     if new_x == x:
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  */
                                 __pyx_v_y = __pyx_v_new_y;
 
-                                /* "cells_world.pyx":90
- *                 openmp.omp_set_lock(&entity_lock)
+                                /* "cells_world.pyx":101
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                 # found food
  *                 if entity_map[new_x, new_y] != 2:             # <<<<<<<<<<<<<<
  *                     if entity_map[new_x, new_y] == 1:
  *                         energy = energy + 4
  */
-                                goto __pyx_L30;
+                                goto __pyx_L36;
                               }
 
-                              /* "cells_world.pyx":117
+                              /* "cells_world.pyx":148
  *                     y = new_y
  *                 else:
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                     if new_x == x:
+ *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
+ */
+                              /*else*/ {
+                                omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                /* "cells_world.pyx":149
+ *                 else:
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  *                     if new_x == x:             # <<<<<<<<<<<<<<
  *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     elif new_y == y:
  */
-                              /*else*/ {
                                 __pyx_t_1 = ((__pyx_v_new_x == __pyx_v_x) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":118
- *                 else:
+                                  /* "cells_world.pyx":150
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  *                     if new_x == x:
  *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)             # <<<<<<<<<<<<<<
  *                     elif new_y == y:
@@ -3541,17 +3833,17 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_x = ((__pyx_v_new_x + 1) - (2 * (__Pyx_mod_long(rand(), 2) + 0)));
 
-                                  /* "cells_world.pyx":117
- *                     y = new_y
+                                  /* "cells_world.pyx":149
  *                 else:
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  *                     if new_x == x:             # <<<<<<<<<<<<<<
  *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     elif new_y == y:
  */
-                                  goto __pyx_L40;
+                                  goto __pyx_L46;
                                 }
 
-                                /* "cells_world.pyx":119
+                                /* "cells_world.pyx":151
  *                     if new_x == x:
  *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     elif new_y == y:             # <<<<<<<<<<<<<<
@@ -3561,7 +3853,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                 __pyx_t_1 = ((__pyx_v_new_y == __pyx_v_y) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":120
+                                  /* "cells_world.pyx":152
  *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     elif new_y == y:
  *                         new_y = new_y + 1 - 2*(rand() % (1 + 1 - 0) + 0)             # <<<<<<<<<<<<<<
@@ -3570,17 +3862,17 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                   __pyx_v_new_y = ((__pyx_v_new_y + 1) - (2 * (__Pyx_mod_long(rand(), 2) + 0)));
 
-                                  /* "cells_world.pyx":119
+                                  /* "cells_world.pyx":151
  *                     if new_x == x:
  *                         new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     elif new_y == y:             # <<<<<<<<<<<<<<
  *                         new_y = new_y + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     else:
  */
-                                  goto __pyx_L40;
+                                  goto __pyx_L46;
                                 }
 
-                                /* "cells_world.pyx":122
+                                /* "cells_world.pyx":154
  *                         new_y = new_y + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     else:
  *                         if rand() & 1:             # <<<<<<<<<<<<<<
@@ -3591,7 +3883,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                   __pyx_t_1 = ((rand() & 1) != 0);
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":123
+                                    /* "cells_world.pyx":155
  *                     else:
  *                         if rand() & 1:
  *                             new_x = x             # <<<<<<<<<<<<<<
@@ -3600,430 +3892,614 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                     __pyx_v_new_x = __pyx_v_x;
 
-                                    /* "cells_world.pyx":122
+                                    /* "cells_world.pyx":154
  *                         new_y = new_y + 1 - 2*(rand() % (1 + 1 - 0) + 0)
  *                     else:
  *                         if rand() & 1:             # <<<<<<<<<<<<<<
  *                             new_x = x
  *                         else:
  */
-                                    goto __pyx_L41;
+                                    goto __pyx_L47;
                                   }
 
-                                  /* "cells_world.pyx":125
+                                  /* "cells_world.pyx":157
  *                             new_x = x
  *                         else:
  *                             new_y = y             # <<<<<<<<<<<<<<
+ *                     openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                     if entity_map[new_x, new_y] != 2:
- *                         if entity_map[new_x, new_y] == 1:
  */
                                   /*else*/ {
                                     __pyx_v_new_y = __pyx_v_y;
                                   }
-                                  __pyx_L41:;
+                                  __pyx_L47:;
                                 }
-                                __pyx_L40:;
+                                __pyx_L46:;
 
-                                /* "cells_world.pyx":126
+                                /* "cells_world.pyx":158
  *                         else:
  *                             new_y = y
+ *                     openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                     if entity_map[new_x, new_y] != 2:
+ *                         if entity_map[new_x, new_y] == 1:
+ */
+                                omp_set_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                /* "cells_world.pyx":159
+ *                             new_y = y
+ *                     openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                     if entity_map[new_x, new_y] != 2:             # <<<<<<<<<<<<<<
  *                         if entity_map[new_x, new_y] == 1:
  *                             energy = energy + 4
  */
-                                __pyx_t_73 = __pyx_v_new_x;
-                                __pyx_t_74 = __pyx_v_new_y;
-                                __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_73 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_74 * __pyx_v_entity_map.strides[1]) ))) != 2) != 0);
+                                __pyx_t_76 = __pyx_v_new_x;
+                                __pyx_t_77 = __pyx_v_new_y;
+                                __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_76 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_77 * __pyx_v_entity_map.strides[1]) ))) != 2) != 0);
                                 if (__pyx_t_1) {
 
-                                  /* "cells_world.pyx":127
- *                             new_y = y
+                                  /* "cells_world.pyx":160
+ *                     openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                     if entity_map[new_x, new_y] != 2:
  *                         if entity_map[new_x, new_y] == 1:             # <<<<<<<<<<<<<<
  *                             energy = energy + 4
- *                             openmp.omp_set_lock(&world_lock)
+ *                             # world lock
  */
-                                  __pyx_t_75 = __pyx_v_new_x;
-                                  __pyx_t_76 = __pyx_v_new_y;
-                                  __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_75 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_76 * __pyx_v_entity_map.strides[1]) ))) == 1) != 0);
+                                  __pyx_t_78 = __pyx_v_new_x;
+                                  __pyx_t_79 = __pyx_v_new_y;
+                                  __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_78 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_79 * __pyx_v_entity_map.strides[1]) ))) == 1) != 0);
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":128
+                                    /* "cells_world.pyx":161
  *                     if entity_map[new_x, new_y] != 2:
  *                         if entity_map[new_x, new_y] == 1:
  *                             energy = energy + 4             # <<<<<<<<<<<<<<
- *                             openmp.omp_set_lock(&world_lock)
- *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                             # world lock
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
  */
                                     __pyx_v_energy = (__pyx_v_energy + 4);
 
-                                    /* "cells_world.pyx":129
- *                         if entity_map[new_x, new_y] == 1:
+                                    /* "cells_world.pyx":163
  *                             energy = energy + 4
- *                             openmp.omp_set_lock(&world_lock)             # <<<<<<<<<<<<<<
+ *                             # world lock
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
  *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
- *                             if new_x != 0:
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  */
-                                    omp_set_lock((&__pyx_v_world_lock));
+                                    omp_set_lock((&(__pyx_v_world_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
 
-                                    /* "cells_world.pyx":130
- *                             energy = energy + 4
- *                             openmp.omp_set_lock(&world_lock)
+                                    /* "cells_world.pyx":164
+ *                             # world lock
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
  *                             world[new_x,new_y] = world[new_x,new_y] - chem_food             # <<<<<<<<<<<<<<
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  *                             if new_x != 0:
- *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
  */
-                                    __pyx_t_77 = __pyx_v_new_x;
-                                    __pyx_t_78 = __pyx_v_new_y;
-                                    __pyx_t_79 = __pyx_v_new_x;
-                                    __pyx_t_80 = __pyx_v_new_y;
-                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_79 * __pyx_v_world.strides[0]) ) + __pyx_t_80 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_77 * __pyx_v_world.strides[0]) ) + __pyx_t_78 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_food);
+                                    __pyx_t_80 = __pyx_v_new_x;
+                                    __pyx_t_81 = __pyx_v_new_y;
+                                    __pyx_t_82 = __pyx_v_new_x;
+                                    __pyx_t_83 = __pyx_v_new_y;
+                                    *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_82 * __pyx_v_world.strides[0]) ) + __pyx_t_83 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_80 * __pyx_v_world.strides[0]) ) + __pyx_t_81 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_food);
 
-                                    /* "cells_world.pyx":131
- *                             openmp.omp_set_lock(&world_lock)
+                                    /* "cells_world.pyx":165
+ *                             openmp.omp_set_lock(&world_lock[new_x*rows+new_y])
  *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                             if new_x != 0:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ */
+                                    omp_unset_lock((&(__pyx_v_world_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                    /* "cells_world.pyx":166
+ *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
  *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
- *                             if new_x != world.shape[0] - 1:
  */
                                     __pyx_t_1 = ((__pyx_v_new_x != 0) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":132
- *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
+                                      /* "cells_world.pyx":167
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
  *                             if new_x != 0:
- *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_x != world.shape[0] - 1:
- *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
- */
-                                      __pyx_t_81 = (__pyx_v_new_x - 1);
-                                      __pyx_t_82 = __pyx_v_new_y;
-                                      __pyx_t_83 = (__pyx_v_new_x - 1);
-                                      __pyx_t_84 = __pyx_v_new_y;
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_83 * __pyx_v_world.strides[0]) ) + __pyx_t_84 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_81 * __pyx_v_world.strides[0]) ) + __pyx_t_82 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":131
- *                             openmp.omp_set_lock(&world_lock)
- *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
- *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])             # <<<<<<<<<<<<<<
  *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                      /* "cells_world.pyx":168
+ *                             if new_x != 0:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
  *                             if new_x != world.shape[0] - 1:
+ */
+                                      __pyx_t_84 = (__pyx_v_new_x - 1);
+                                      __pyx_t_85 = __pyx_v_new_y;
+                                      __pyx_t_86 = (__pyx_v_new_x - 1);
+                                      __pyx_t_87 = __pyx_v_new_y;
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_86 * __pyx_v_world.strides[0]) ) + __pyx_t_87 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_84 * __pyx_v_world.strides[0]) ) + __pyx_t_85 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":169
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])             # <<<<<<<<<<<<<<
+ *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                      /* "cells_world.pyx":166
+ *                             world[new_x,new_y] = world[new_x,new_y] - chem_food
+ *                             openmp.omp_unset_lock(&world_lock[new_x*rows+new_y])
+ *                             if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
  */
                                     }
 
-                                    /* "cells_world.pyx":133
- *                             if new_x != 0:
+                                    /* "cells_world.pyx":170
  *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
  *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
  *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
- *                             if new_y != 0:
  */
                                     __pyx_t_1 = ((__pyx_v_new_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":134
- *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+                                      /* "cells_world.pyx":171
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
  *                             if new_x != world.shape[0] - 1:
- *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_y != 0:
- *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- */
-                                      __pyx_t_85 = (__pyx_v_new_x + 1);
-                                      __pyx_t_86 = __pyx_v_new_y;
-                                      __pyx_t_87 = (__pyx_v_new_x + 1);
-                                      __pyx_t_88 = __pyx_v_new_y;
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_87 * __pyx_v_world.strides[0]) ) + __pyx_t_88 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_85 * __pyx_v_world.strides[0]) ) + __pyx_t_86 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":133
- *                             if new_x != 0:
- *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
- *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])             # <<<<<<<<<<<<<<
  *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                      /* "cells_world.pyx":172
+ *                             if new_x != world.shape[0] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                             if new_y != 0:
+ */
+                                      __pyx_t_88 = (__pyx_v_new_x + 1);
+                                      __pyx_t_89 = __pyx_v_new_y;
+                                      __pyx_t_90 = (__pyx_v_new_x + 1);
+                                      __pyx_t_91 = __pyx_v_new_y;
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_90 * __pyx_v_world.strides[0]) ) + __pyx_t_91 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_88 * __pyx_v_world.strides[0]) ) + __pyx_t_89 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":173
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])             # <<<<<<<<<<<<<<
+ *                             if new_y != 0:
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                      /* "cells_world.pyx":170
+ *                                 world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y])
+ *                             if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y])
+ *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
  */
                                     }
 
-                                    /* "cells_world.pyx":135
- *                             if new_x != world.shape[0] - 1:
+                                    /* "cells_world.pyx":174
  *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                             if new_y != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
  *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- *                                 if new_x != 0:
  */
                                     __pyx_t_1 = ((__pyx_v_new_y != 0) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":136
- *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+                                      /* "cells_world.pyx":175
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                             if new_y != 0:
- *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
- *                                 if new_x != 0:
- *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
- */
-                                      __pyx_t_89 = __pyx_v_new_x;
-                                      __pyx_t_90 = (__pyx_v_new_y - 1);
-                                      __pyx_t_91 = __pyx_v_new_x;
-                                      __pyx_t_92 = (__pyx_v_new_y - 1);
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_91 * __pyx_v_world.strides[0]) ) + __pyx_t_92 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_89 * __pyx_v_world.strides[0]) ) + __pyx_t_90 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":137
- *                             if new_y != 0:
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])             # <<<<<<<<<<<<<<
  *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                      /* "cells_world.pyx":176
+ *                             if new_y != 0:
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
+ *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
+ *                                 if new_x != 0:
+ */
+                                      __pyx_t_92 = __pyx_v_new_x;
+                                      __pyx_t_93 = (__pyx_v_new_y - 1);
+                                      __pyx_t_94 = __pyx_v_new_x;
+                                      __pyx_t_95 = (__pyx_v_new_y - 1);
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_94 * __pyx_v_world.strides[0]) ) + __pyx_t_95 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_92 * __pyx_v_world.strides[0]) ) + __pyx_t_93 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":177
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
+ *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])             # <<<<<<<<<<<<<<
+ *                                 if new_x != 0:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                      /* "cells_world.pyx":178
+ *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
  *                                 if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
- *                                 if new_x != world.shape[0] - 1:
  */
                                       __pyx_t_1 = ((__pyx_v_new_x != 0) != 0);
                                       if (__pyx_t_1) {
 
-                                        /* "cells_world.pyx":138
- *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+                                        /* "cells_world.pyx":179
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
  *                                 if new_x != 0:
- *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
- *                                 if new_x != world.shape[0] - 1:
- *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
- */
-                                        __pyx_t_93 = (__pyx_v_new_x - 1);
-                                        __pyx_t_94 = (__pyx_v_new_y - 1);
-                                        __pyx_t_95 = (__pyx_v_new_x - 1);
-                                        __pyx_t_96 = (__pyx_v_new_y - 1);
-                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_95 * __pyx_v_world.strides[0]) ) + __pyx_t_96 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_93 * __pyx_v_world.strides[0]) ) + __pyx_t_94 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                        /* "cells_world.pyx":137
- *                             if new_y != 0:
- *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- *                                 if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])             # <<<<<<<<<<<<<<
  *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ */
+                                        omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                        /* "cells_world.pyx":180
+ *                                 if new_x != 0:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                                 if new_x != world.shape[0] - 1:
+ */
+                                        __pyx_t_96 = (__pyx_v_new_x - 1);
+                                        __pyx_t_97 = (__pyx_v_new_y - 1);
+                                        __pyx_t_98 = (__pyx_v_new_x - 1);
+                                        __pyx_t_99 = (__pyx_v_new_y - 1);
+                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_98 * __pyx_v_world.strides[0]) ) + __pyx_t_99 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_96 * __pyx_v_world.strides[0]) ) + __pyx_t_97 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                        /* "cells_world.pyx":181
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])             # <<<<<<<<<<<<<<
+ *                                 if new_x != world.shape[0] - 1:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ */
+                                        omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                        /* "cells_world.pyx":178
+ *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y-1])
+ *                                 if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
  */
                                       }
 
-                                      /* "cells_world.pyx":139
- *                                 if new_x != 0:
+                                      /* "cells_world.pyx":182
  *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                                 if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
- *                             if new_y != world.shape[1] - 1:
  */
                                       __pyx_t_1 = ((__pyx_v_new_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                                       if (__pyx_t_1) {
 
-                                        /* "cells_world.pyx":140
- *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+                                        /* "cells_world.pyx":183
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
  *                                 if new_x != world.shape[0] - 1:
- *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
- *                             if new_y != world.shape[1] - 1:
- *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- */
-                                        __pyx_t_97 = (__pyx_v_new_x + 1);
-                                        __pyx_t_98 = (__pyx_v_new_y - 1);
-                                        __pyx_t_99 = (__pyx_v_new_x + 1);
-                                        __pyx_t_100 = (__pyx_v_new_y - 1);
-                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_99 * __pyx_v_world.strides[0]) ) + __pyx_t_100 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_97 * __pyx_v_world.strides[0]) ) + __pyx_t_98 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                        /* "cells_world.pyx":139
- *                                 if new_x != 0:
- *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
- *                                 if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])             # <<<<<<<<<<<<<<
  *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ */
+                                        omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                        /* "cells_world.pyx":184
+ *                                 if new_x != world.shape[0] - 1:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                             if new_y != world.shape[1] - 1:
+ */
+                                        __pyx_t_100 = (__pyx_v_new_x + 1);
+                                        __pyx_t_101 = (__pyx_v_new_y - 1);
+                                        __pyx_t_102 = (__pyx_v_new_x + 1);
+                                        __pyx_t_103 = (__pyx_v_new_y - 1);
+                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_102 * __pyx_v_world.strides[0]) ) + __pyx_t_103 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_100 * __pyx_v_world.strides[0]) ) + __pyx_t_101 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                        /* "cells_world.pyx":185
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])             # <<<<<<<<<<<<<<
+ *                             if new_y != world.shape[1] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
+ */
+                                        omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) - 1)])));
+
+                                        /* "cells_world.pyx":182
+ *                                     world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y-1])
+ *                                 if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y-1])
+ *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
  */
                                       }
 
-                                      /* "cells_world.pyx":135
- *                             if new_x != world.shape[0] - 1:
+                                      /* "cells_world.pyx":174
  *                                 world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y])
  *                             if new_y != 0:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y-1])
  *                                 world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
- *                                 if new_x != 0:
  */
                                     }
 
-                                    /* "cells_world.pyx":141
- *                                 if new_x != world.shape[0] - 1:
+                                    /* "cells_world.pyx":186
  *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                             if new_y != world.shape[1] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
  *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- *                                 if new_x != 0:
  */
                                     __pyx_t_1 = ((__pyx_v_new_y != ((__pyx_v_world.shape[1]) - 1)) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":142
- *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+                                      /* "cells_world.pyx":187
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                             if new_y != world.shape[1] - 1:
- *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
- *                                 if new_x != 0:
- *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
- */
-                                      __pyx_t_101 = __pyx_v_new_x;
-                                      __pyx_t_102 = (__pyx_v_new_y + 1);
-                                      __pyx_t_103 = __pyx_v_new_x;
-                                      __pyx_t_104 = (__pyx_v_new_y + 1);
-                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_103 * __pyx_v_world.strides[0]) ) + __pyx_t_104 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_101 * __pyx_v_world.strides[0]) ) + __pyx_t_102 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                      /* "cells_world.pyx":143
- *                             if new_y != world.shape[1] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])             # <<<<<<<<<<<<<<
  *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
+ */
+                                      omp_set_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                      /* "cells_world.pyx":188
+ *                             if new_y != world.shape[1] - 1:
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
+ *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
+ *                                 if new_x != 0:
+ */
+                                      __pyx_t_104 = __pyx_v_new_x;
+                                      __pyx_t_105 = (__pyx_v_new_y + 1);
+                                      __pyx_t_106 = __pyx_v_new_x;
+                                      __pyx_t_107 = (__pyx_v_new_y + 1);
+                                      *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_106 * __pyx_v_world.strides[0]) ) + __pyx_t_107 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_104 * __pyx_v_world.strides[0]) ) + __pyx_t_105 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                      /* "cells_world.pyx":189
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
+ *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                                 if new_x != 0:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ */
+                                      omp_unset_lock((&(__pyx_v_world_lock[(((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                      /* "cells_world.pyx":190
+ *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
  *                                 if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
- *                                 if new_x != world.shape[0] - 1:
  */
                                       __pyx_t_1 = ((__pyx_v_new_x != 0) != 0);
                                       if (__pyx_t_1) {
 
-                                        /* "cells_world.pyx":144
- *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+                                        /* "cells_world.pyx":191
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
  *                                 if new_x != 0:
- *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
- *                                 if new_x != world.shape[0] - 1:
- *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- */
-                                        __pyx_t_105 = (__pyx_v_new_x - 1);
-                                        __pyx_t_106 = (__pyx_v_new_y + 1);
-                                        __pyx_t_107 = (__pyx_v_new_x - 1);
-                                        __pyx_t_108 = (__pyx_v_new_y + 1);
-                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_107 * __pyx_v_world.strides[0]) ) + __pyx_t_108 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_105 * __pyx_v_world.strides[0]) ) + __pyx_t_106 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
-
-                                        /* "cells_world.pyx":143
- *                             if new_y != world.shape[1] - 1:
- *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- *                                 if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])             # <<<<<<<<<<<<<<
  *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ */
+                                        omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                        /* "cells_world.pyx":192
+ *                                 if new_x != 0:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                                 if new_x != world.shape[0] - 1:
+ */
+                                        __pyx_t_108 = (__pyx_v_new_x - 1);
+                                        __pyx_t_109 = (__pyx_v_new_y + 1);
+                                        __pyx_t_110 = (__pyx_v_new_x - 1);
+                                        __pyx_t_111 = (__pyx_v_new_y + 1);
+                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_110 * __pyx_v_world.strides[0]) ) + __pyx_t_111 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_108 * __pyx_v_world.strides[0]) ) + __pyx_t_109 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+
+                                        /* "cells_world.pyx":193
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                                 if new_x != world.shape[0] - 1:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ */
+                                        omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x - 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                        /* "cells_world.pyx":190
+ *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+ *                                 openmp.omp_unset_lock(&world_lock[new_x*rows+new_y+1])
+ *                                 if new_x != 0:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
  */
                                       }
 
-                                      /* "cells_world.pyx":145
- *                                 if new_x != 0:
+                                      /* "cells_world.pyx":194
  *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                                 if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                             openmp.omp_unset_lock(&world_lock)
  */
                                       __pyx_t_1 = ((__pyx_v_new_x != ((__pyx_v_world.shape[0]) - 1)) != 0);
                                       if (__pyx_t_1) {
 
-                                        /* "cells_world.pyx":146
- *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+                                        /* "cells_world.pyx":195
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
  *                                 if new_x != world.shape[0] - 1:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ */
+                                        omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                        /* "cells_world.pyx":196
+ *                                 if new_x != world.shape[0] - 1:
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay             # <<<<<<<<<<<<<<
- *                             openmp.omp_unset_lock(&world_lock)
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                         entity_map[new_x, new_y] = 2
  */
-                                        __pyx_t_109 = (__pyx_v_new_x + 1);
-                                        __pyx_t_110 = (__pyx_v_new_y + 1);
-                                        __pyx_t_111 = (__pyx_v_new_x + 1);
-                                        __pyx_t_112 = (__pyx_v_new_y + 1);
-                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_111 * __pyx_v_world.strides[0]) ) + __pyx_t_112 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_109 * __pyx_v_world.strides[0]) ) + __pyx_t_110 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
+                                        __pyx_t_112 = (__pyx_v_new_x + 1);
+                                        __pyx_t_113 = (__pyx_v_new_y + 1);
+                                        __pyx_t_114 = (__pyx_v_new_x + 1);
+                                        __pyx_t_115 = (__pyx_v_new_y + 1);
+                                        *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_114 * __pyx_v_world.strides[0]) ) + __pyx_t_115 * __pyx_v_world.strides[1]) )) = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_112 * __pyx_v_world.strides[0]) ) + __pyx_t_113 * __pyx_v_world.strides[1]) ))) - __pyx_v_chem_decay);
 
-                                        /* "cells_world.pyx":145
- *                                 if new_x != 0:
- *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
- *                                 if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+                                        /* "cells_world.pyx":197
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                             openmp.omp_unset_lock(&world_lock)
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])             # <<<<<<<<<<<<<<
+ *                         entity_map[new_x, new_y] = 2
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ */
+                                        omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_new_x + 1) * __pyx_v_rows) + __pyx_v_new_y) + 1)])));
+
+                                        /* "cells_world.pyx":194
+ *                                     world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x-1)*rows+new_y+1])
+ *                                 if new_x != world.shape[0] - 1:             # <<<<<<<<<<<<<<
+ *                                     openmp.omp_set_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
  */
                                       }
 
-                                      /* "cells_world.pyx":141
- *                                 if new_x != world.shape[0] - 1:
+                                      /* "cells_world.pyx":186
  *                                     world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y-1])
  *                             if new_y != world.shape[1] - 1:             # <<<<<<<<<<<<<<
+ *                                 openmp.omp_set_lock(&world_lock[new_x*rows+new_y+1])
  *                                 world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
- *                                 if new_x != 0:
  */
                                     }
 
-                                    /* "cells_world.pyx":147
- *                                 if new_x != world.shape[0] - 1:
- *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                             openmp.omp_unset_lock(&world_lock)             # <<<<<<<<<<<<<<
- *                         entity_map[new_x, new_y] = 2
- *                         entity_map[x, y] = 0
- */
-                                    omp_unset_lock((&__pyx_v_world_lock));
-
-                                    /* "cells_world.pyx":127
- *                             new_y = y
+                                    /* "cells_world.pyx":160
+ *                     openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                     if entity_map[new_x, new_y] != 2:
  *                         if entity_map[new_x, new_y] == 1:             # <<<<<<<<<<<<<<
  *                             energy = energy + 4
- *                             openmp.omp_set_lock(&world_lock)
+ *                             # world lock
  */
                                   }
 
-                                  /* "cells_world.pyx":148
+                                  /* "cells_world.pyx":198
  *                                     world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
- *                             openmp.omp_unset_lock(&world_lock)
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
  *                         entity_map[new_x, new_y] = 2             # <<<<<<<<<<<<<<
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                         openmp.omp_set_lock(&entity_lock[x*rows+y])
+ */
+                                  __pyx_t_116 = __pyx_v_new_x;
+                                  __pyx_t_117 = __pyx_v_new_y;
+                                  *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_116 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_117 * __pyx_v_entity_map.strides[1]) )) = 2;
+
+                                  /* "cells_world.pyx":199
+ *                                     openmp.omp_unset_lock(&world_lock[(new_x+1)*rows+new_y+1])
+ *                         entity_map[new_x, new_y] = 2
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                         openmp.omp_set_lock(&entity_lock[x*rows+y])
  *                         entity_map[x, y] = 0
+ */
+                                  omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                  /* "cells_world.pyx":200
+ *                         entity_map[new_x, new_y] = 2
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                         openmp.omp_set_lock(&entity_lock[x*rows+y])             # <<<<<<<<<<<<<<
+ *                         entity_map[x, y] = 0
+ *                         openmp.omp_unset_lock(&entity_lock[x*rows+y])
+ */
+                                  omp_set_lock((&(__pyx_v_entity_lock[((__pyx_v_x * __pyx_v_rows) + __pyx_v_y)])));
+
+                                  /* "cells_world.pyx":201
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                         openmp.omp_set_lock(&entity_lock[x*rows+y])
+ *                         entity_map[x, y] = 0             # <<<<<<<<<<<<<<
+ *                         openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                         x = new_x
  */
-                                  __pyx_t_113 = __pyx_v_new_x;
-                                  __pyx_t_114 = __pyx_v_new_y;
-                                  *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_113 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_114 * __pyx_v_entity_map.strides[1]) )) = 2;
+                                  __pyx_t_118 = __pyx_v_x;
+                                  __pyx_t_119 = __pyx_v_y;
+                                  *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_118 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_119 * __pyx_v_entity_map.strides[1]) )) = 0;
 
-                                  /* "cells_world.pyx":149
- *                             openmp.omp_unset_lock(&world_lock)
- *                         entity_map[new_x, new_y] = 2
- *                         entity_map[x, y] = 0             # <<<<<<<<<<<<<<
+                                  /* "cells_world.pyx":202
+ *                         openmp.omp_set_lock(&entity_lock[x*rows+y])
+ *                         entity_map[x, y] = 0
+ *                         openmp.omp_unset_lock(&entity_lock[x*rows+y])             # <<<<<<<<<<<<<<
  *                         x = new_x
  *                         y = new_y
  */
-                                  __pyx_t_115 = __pyx_v_x;
-                                  __pyx_t_116 = __pyx_v_y;
-                                  *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_115 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_116 * __pyx_v_entity_map.strides[1]) )) = 0;
+                                  omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_x * __pyx_v_rows) + __pyx_v_y)])));
 
-                                  /* "cells_world.pyx":150
- *                         entity_map[new_x, new_y] = 2
+                                  /* "cells_world.pyx":203
  *                         entity_map[x, y] = 0
+ *                         openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                         x = new_x             # <<<<<<<<<<<<<<
  *                         y = new_y
- *                 openmp.omp_unset_lock(&entity_lock)
+ *                     else:
  */
                                   __pyx_v_x = __pyx_v_new_x;
 
-                                  /* "cells_world.pyx":151
- *                         entity_map[x, y] = 0
+                                  /* "cells_world.pyx":204
+ *                         openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                         x = new_x
  *                         y = new_y             # <<<<<<<<<<<<<<
- *                 openmp.omp_unset_lock(&entity_lock)
- *             # didn't find any chem signal go to a random place
+ *                     else:
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  */
                                   __pyx_v_y = __pyx_v_new_y;
 
-                                  /* "cells_world.pyx":126
- *                         else:
+                                  /* "cells_world.pyx":159
  *                             new_y = y
+ *                     openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                     if entity_map[new_x, new_y] != 2:             # <<<<<<<<<<<<<<
  *                         if entity_map[new_x, new_y] == 1:
  *                             energy = energy + 4
  */
+                                  goto __pyx_L48;
                                 }
-                              }
-                              __pyx_L30:;
 
-                              /* "cells_world.pyx":152
- *                         x = new_x
+                                /* "cells_world.pyx":206
  *                         y = new_y
- *                 openmp.omp_unset_lock(&entity_lock)             # <<<<<<<<<<<<<<
+ *                     else:
+ *                         openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
  *             # didn't find any chem signal go to a random place
  *             else:
  */
-                              omp_unset_lock((&__pyx_v_entity_lock));
+                                /*else*/ {
+                                  omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+                                }
+                                __pyx_L48:;
+                              }
+                              __pyx_L36:;
 
-                              /* "cells_world.pyx":86
+                              /* "cells_world.pyx":96
  *                         new_y = y+1
  *             # found a signal, go there are look for food
  *             if max != 0:             # <<<<<<<<<<<<<<
  *                 # move
- *                 openmp.omp_set_lock(&entity_lock)
+ *                 # entity lock
  */
-                              goto __pyx_L29;
+                              goto __pyx_L35;
                             }
 
-                            /* "cells_world.pyx":155
+                            /* "cells_world.pyx":209
  *             # didn't find any chem signal go to a random place
  *             else:
  *                 if x == 0:             # <<<<<<<<<<<<<<
@@ -4034,7 +4510,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_x == 0) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":156
+                                /* "cells_world.pyx":210
  *             else:
  *                 if x == 0:
  *                     new_x = x + rand() % (1 + 1 - 0) + 0             # <<<<<<<<<<<<<<
@@ -4043,17 +4519,17 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_x = ((__pyx_v_x + __Pyx_mod_long(rand(), 2)) + 0);
 
-                                /* "cells_world.pyx":155
+                                /* "cells_world.pyx":209
  *             # didn't find any chem signal go to a random place
  *             else:
  *                 if x == 0:             # <<<<<<<<<<<<<<
  *                     new_x = x + rand() % (1 + 1 - 0) + 0
  *                 elif x == world.shape[0] - 1:
  */
-                                goto __pyx_L52;
+                                goto __pyx_L58;
                               }
 
-                              /* "cells_world.pyx":157
+                              /* "cells_world.pyx":211
  *                 if x == 0:
  *                     new_x = x + rand() % (1 + 1 - 0) + 0
  *                 elif x == world.shape[0] - 1:             # <<<<<<<<<<<<<<
@@ -4063,7 +4539,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_x == ((__pyx_v_world.shape[0]) - 1)) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":158
+                                /* "cells_world.pyx":212
  *                     new_x = x + rand() % (1 + 1 - 0) + 0
  *                 elif x == world.shape[0] - 1:
  *                     new_x = x + rand() % (0 + 1 - -1) + -1             # <<<<<<<<<<<<<<
@@ -4072,17 +4548,17 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_x = ((__pyx_v_x + __Pyx_mod_long(rand(), 2)) + -1L);
 
-                                /* "cells_world.pyx":157
+                                /* "cells_world.pyx":211
  *                 if x == 0:
  *                     new_x = x + rand() % (1 + 1 - 0) + 0
  *                 elif x == world.shape[0] - 1:             # <<<<<<<<<<<<<<
  *                     new_x = x + rand() % (0 + 1 - -1) + -1
  *                 else:
  */
-                                goto __pyx_L52;
+                                goto __pyx_L58;
                               }
 
-                              /* "cells_world.pyx":160
+                              /* "cells_world.pyx":214
  *                     new_x = x + rand() % (0 + 1 - -1) + -1
  *                 else:
  *                     new_x = x + rand() % (1 + 1 - -1) + -1             # <<<<<<<<<<<<<<
@@ -4092,9 +4568,9 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               /*else*/ {
                                 __pyx_v_new_x = ((__pyx_v_x + __Pyx_mod_long(rand(), 3)) + -1L);
                               }
-                              __pyx_L52:;
+                              __pyx_L58:;
 
-                              /* "cells_world.pyx":161
+                              /* "cells_world.pyx":215
  *                 else:
  *                     new_x = x + rand() % (1 + 1 - -1) + -1
  *                 if y == 0:             # <<<<<<<<<<<<<<
@@ -4104,7 +4580,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_y == 0) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":162
+                                /* "cells_world.pyx":216
  *                     new_x = x + rand() % (1 + 1 - -1) + -1
  *                 if y == 0:
  *                     new_y = y + rand() % (1 + 1 - 0) + 0             # <<<<<<<<<<<<<<
@@ -4113,17 +4589,17 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_y = ((__pyx_v_y + __Pyx_mod_long(rand(), 2)) + 0);
 
-                                /* "cells_world.pyx":161
+                                /* "cells_world.pyx":215
  *                 else:
  *                     new_x = x + rand() % (1 + 1 - -1) + -1
  *                 if y == 0:             # <<<<<<<<<<<<<<
  *                     new_y = y + rand() % (1 + 1 - 0) + 0
  *                 elif y == world.shape[0] - 1:
  */
-                                goto __pyx_L53;
+                                goto __pyx_L59;
                               }
 
-                              /* "cells_world.pyx":163
+                              /* "cells_world.pyx":217
  *                 if y == 0:
  *                     new_y = y + rand() % (1 + 1 - 0) + 0
  *                 elif y == world.shape[0] - 1:             # <<<<<<<<<<<<<<
@@ -4133,7 +4609,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               __pyx_t_1 = ((__pyx_v_y == ((__pyx_v_world.shape[0]) - 1)) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":164
+                                /* "cells_world.pyx":218
  *                     new_y = y + rand() % (1 + 1 - 0) + 0
  *                 elif y == world.shape[0] - 1:
  *                     new_y = y + rand() % (0 + 1 - -1) + -1             # <<<<<<<<<<<<<<
@@ -4142,17 +4618,17 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                                 __pyx_v_new_y = ((__pyx_v_y + __Pyx_mod_long(rand(), 2)) + -1L);
 
-                                /* "cells_world.pyx":163
+                                /* "cells_world.pyx":217
  *                 if y == 0:
  *                     new_y = y + rand() % (1 + 1 - 0) + 0
  *                 elif y == world.shape[0] - 1:             # <<<<<<<<<<<<<<
  *                     new_y = y + rand() % (0 + 1 - -1) + -1
  *                 else:
  */
-                                goto __pyx_L53;
+                                goto __pyx_L59;
                               }
 
-                              /* "cells_world.pyx":166
+                              /* "cells_world.pyx":220
  *                     new_y = y + rand() % (0 + 1 - -1) + -1
  *                 else:
  *                     new_y = y + rand() % (1 + 1 - -1) + -1             # <<<<<<<<<<<<<<
@@ -4162,91 +4638,122 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                               /*else*/ {
                                 __pyx_v_new_y = ((__pyx_v_y + __Pyx_mod_long(rand(), 3)) + -1L);
                               }
-                              __pyx_L53:;
+                              __pyx_L59:;
 
-                              /* "cells_world.pyx":169
+                              /* "cells_world.pyx":223
  *                 # if the cell doesn't collide with another cell move
  *                 # move
- *                 openmp.omp_set_lock(&entity_lock)             # <<<<<<<<<<<<<<
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
  *                 if entity_map[new_x, new_y] != 2:
  *                     entity_map[new_x, new_y] = 2
  */
-                              omp_set_lock((&__pyx_v_entity_lock));
+                              omp_set_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
 
-                              /* "cells_world.pyx":170
+                              /* "cells_world.pyx":224
  *                 # move
- *                 openmp.omp_set_lock(&entity_lock)
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                 if entity_map[new_x, new_y] != 2:             # <<<<<<<<<<<<<<
  *                     entity_map[new_x, new_y] = 2
- *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  */
-                              __pyx_t_117 = __pyx_v_new_x;
-                              __pyx_t_118 = __pyx_v_new_y;
-                              __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_117 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_118 * __pyx_v_entity_map.strides[1]) ))) != 2) != 0);
+                              __pyx_t_120 = __pyx_v_new_x;
+                              __pyx_t_121 = __pyx_v_new_y;
+                              __pyx_t_1 = (((*((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_120 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_121 * __pyx_v_entity_map.strides[1]) ))) != 2) != 0);
                               if (__pyx_t_1) {
 
-                                /* "cells_world.pyx":171
- *                 openmp.omp_set_lock(&entity_lock)
+                                /* "cells_world.pyx":225
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                 if entity_map[new_x, new_y] != 2:
  *                     entity_map[new_x, new_y] = 2             # <<<<<<<<<<<<<<
- *                     entity_map[x, y] = 0
- *                     x = new_x
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
  */
-                                __pyx_t_119 = __pyx_v_new_x;
-                                __pyx_t_120 = __pyx_v_new_y;
-                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_119 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_120 * __pyx_v_entity_map.strides[1]) )) = 2;
+                                __pyx_t_122 = __pyx_v_new_x;
+                                __pyx_t_123 = __pyx_v_new_y;
+                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_122 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_123 * __pyx_v_entity_map.strides[1]) )) = 2;
 
-                                /* "cells_world.pyx":172
+                                /* "cells_world.pyx":226
  *                 if entity_map[new_x, new_y] != 2:
  *                     entity_map[new_x, new_y] = 2
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
+ *                     entity_map[x, y] = 0
+ */
+                                omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+
+                                /* "cells_world.pyx":227
+ *                     entity_map[new_x, new_y] = 2
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])             # <<<<<<<<<<<<<<
+ *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
+ */
+                                omp_set_lock((&(__pyx_v_entity_lock[((__pyx_v_x * __pyx_v_rows) + __pyx_v_y)])));
+
+                                /* "cells_world.pyx":228
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
  *                     entity_map[x, y] = 0             # <<<<<<<<<<<<<<
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
+ *                     x = new_x
+ */
+                                __pyx_t_124 = __pyx_v_x;
+                                __pyx_t_125 = __pyx_v_y;
+                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_124 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_125 * __pyx_v_entity_map.strides[1]) )) = 0;
+
+                                /* "cells_world.pyx":229
+ *                     openmp.omp_set_lock(&entity_lock[x*rows+y])
+ *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])             # <<<<<<<<<<<<<<
  *                     x = new_x
  *                     y = new_y
  */
-                                __pyx_t_121 = __pyx_v_x;
-                                __pyx_t_122 = __pyx_v_y;
-                                *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_entity_map.data + __pyx_t_121 * __pyx_v_entity_map.strides[0]) ) + __pyx_t_122 * __pyx_v_entity_map.strides[1]) )) = 0;
+                                omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_x * __pyx_v_rows) + __pyx_v_y)])));
 
-                                /* "cells_world.pyx":173
- *                     entity_map[new_x, new_y] = 2
+                                /* "cells_world.pyx":230
  *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                     x = new_x             # <<<<<<<<<<<<<<
  *                     y = new_y
- *                 openmp.omp_unset_lock(&entity_lock)
+ *                 else:
  */
                                 __pyx_v_x = __pyx_v_new_x;
 
-                                /* "cells_world.pyx":174
- *                     entity_map[x, y] = 0
+                                /* "cells_world.pyx":231
+ *                     openmp.omp_unset_lock(&entity_lock[x*rows+y])
  *                     x = new_x
  *                     y = new_y             # <<<<<<<<<<<<<<
- *                 openmp.omp_unset_lock(&entity_lock)
- *             # cells spend their energy to live
+ *                 else:
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  */
                                 __pyx_v_y = __pyx_v_new_y;
 
-                                /* "cells_world.pyx":170
+                                /* "cells_world.pyx":224
  *                 # move
- *                 openmp.omp_set_lock(&entity_lock)
+ *                 openmp.omp_set_lock(&entity_lock[new_x*rows+new_y])
  *                 if entity_map[new_x, new_y] != 2:             # <<<<<<<<<<<<<<
  *                     entity_map[new_x, new_y] = 2
- *                     entity_map[x, y] = 0
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  */
+                                goto __pyx_L60;
                               }
 
-                              /* "cells_world.pyx":175
- *                     x = new_x
+                              /* "cells_world.pyx":233
  *                     y = new_y
- *                 openmp.omp_unset_lock(&entity_lock)             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])             # <<<<<<<<<<<<<<
  *             # cells spend their energy to live
  *             energy = energy - 1
  */
-                              omp_unset_lock((&__pyx_v_entity_lock));
+                              /*else*/ {
+                                omp_unset_lock((&(__pyx_v_entity_lock[((__pyx_v_new_x * __pyx_v_rows) + __pyx_v_new_y)])));
+                              }
+                              __pyx_L60:;
                             }
-                            __pyx_L29:;
+                            __pyx_L35:;
 
-                            /* "cells_world.pyx":177
- *                 openmp.omp_unset_lock(&entity_lock)
+                            /* "cells_world.pyx":235
+ *                     openmp.omp_unset_lock(&entity_lock[new_x*rows+new_y])
  *             # cells spend their energy to live
  *             energy = energy - 1             # <<<<<<<<<<<<<<
  *             # starving or found cAMP
@@ -4254,88 +4761,88 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  */
                             __pyx_v_energy = (__pyx_v_energy - 1);
 
-                            /* "cells_world.pyx":180
+                            /* "cells_world.pyx":238
  *             # starving or found cAMP
  *             # food signal goes from 0 to 1, more than 1 is cAMP
  *             if energy <= 0 or max >= 1:             # <<<<<<<<<<<<<<
- *                 openmp.omp_set_lock(&world_lock)
- *                 # generate cluster order signal to form slug
- */
-                            __pyx_t_14 = ((__pyx_v_energy <= 0) != 0);
-                            if (!__pyx_t_14) {
-                            } else {
-                              __pyx_t_1 = __pyx_t_14;
-                              goto __pyx_L56_bool_binop_done;
-                            }
-                            __pyx_t_14 = ((__pyx_v_max >= 1.0) != 0);
-                            __pyx_t_1 = __pyx_t_14;
-                            __pyx_L56_bool_binop_done:;
-                            if (__pyx_t_1) {
-
-                              /* "cells_world.pyx":181
- *             # food signal goes from 0 to 1, more than 1 is cAMP
- *             if energy <= 0 or max >= 1:
- *                 openmp.omp_set_lock(&world_lock)             # <<<<<<<<<<<<<<
  *                 # generate cluster order signal to form slug
  *                 for k in range(-influence_range, influence_range + 1):
  */
-                              omp_set_lock((&__pyx_v_world_lock));
+                            __pyx_t_17 = ((__pyx_v_energy <= 0) != 0);
+                            if (!__pyx_t_17) {
+                            } else {
+                              __pyx_t_1 = __pyx_t_17;
+                              goto __pyx_L62_bool_binop_done;
+                            }
+                            __pyx_t_17 = ((__pyx_v_max >= 1.0) != 0);
+                            __pyx_t_1 = __pyx_t_17;
+                            __pyx_L62_bool_binop_done:;
+                            if (__pyx_t_1) {
 
-                              /* "cells_world.pyx":183
- *                 openmp.omp_set_lock(&world_lock)
+                              /* "cells_world.pyx":240
+ *             if energy <= 0 or max >= 1:
  *                 # generate cluster order signal to form slug
  *                 for k in range(-influence_range, influence_range + 1):             # <<<<<<<<<<<<<<
  *                     for j in range(-influence_range, influence_range + 1):
  *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
  */
-                              __pyx_t_123 = (__pyx_v_influence_range + 1);
-                              __pyx_t_124 = __pyx_t_123;
-                              for (__pyx_t_125 = (-__pyx_v_influence_range); __pyx_t_125 < __pyx_t_124; __pyx_t_125+=1) {
-                                __pyx_v_k = __pyx_t_125;
+                              __pyx_t_126 = (__pyx_v_influence_range + 1);
+                              __pyx_t_127 = __pyx_t_126;
+                              for (__pyx_t_6 = (-__pyx_v_influence_range); __pyx_t_6 < __pyx_t_127; __pyx_t_6+=1) {
+                                __pyx_v_k = __pyx_t_6;
 
-                                /* "cells_world.pyx":184
+                                /* "cells_world.pyx":241
  *                 # generate cluster order signal to form slug
  *                 for k in range(-influence_range, influence_range + 1):
  *                     for j in range(-influence_range, influence_range + 1):             # <<<<<<<<<<<<<<
  *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
- *                             if abs(k)<abs(j):
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
  */
-                                __pyx_t_126 = (__pyx_v_influence_range + 1);
-                                __pyx_t_127 = __pyx_t_126;
-                                for (__pyx_t_128 = (-__pyx_v_influence_range); __pyx_t_128 < __pyx_t_127; __pyx_t_128+=1) {
-                                  __pyx_v_j = __pyx_t_128;
+                                __pyx_t_128 = (__pyx_v_influence_range + 1);
+                                __pyx_t_129 = __pyx_t_128;
+                                for (__pyx_t_7 = (-__pyx_v_influence_range); __pyx_t_7 < __pyx_t_129; __pyx_t_7+=1) {
+                                  __pyx_v_j = __pyx_t_7;
 
-                                  /* "cells_world.pyx":185
+                                  /* "cells_world.pyx":242
  *                 for k in range(-influence_range, influence_range + 1):
  *                     for j in range(-influence_range, influence_range + 1):
  *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
  *                             if abs(k)<abs(j):
- *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
  */
-                                  __pyx_t_129 = (__pyx_v_x + __pyx_v_k);
-                                  __pyx_t_14 = (0 <= __pyx_t_129);
-                                  if (__pyx_t_14) {
-                                    __pyx_t_14 = (__pyx_t_129 < (__pyx_v_world.shape[0]));
+                                  __pyx_t_8 = (__pyx_v_x + __pyx_v_k);
+                                  __pyx_t_17 = (0 <= __pyx_t_8);
+                                  if (__pyx_t_17) {
+                                    __pyx_t_17 = (__pyx_t_8 < (__pyx_v_world.shape[0]));
                                   }
-                                  __pyx_t_130 = (__pyx_t_14 != 0);
+                                  __pyx_t_130 = (__pyx_t_17 != 0);
                                   if (__pyx_t_130) {
                                   } else {
                                     __pyx_t_1 = __pyx_t_130;
-                                    goto __pyx_L63_bool_binop_done;
+                                    goto __pyx_L69_bool_binop_done;
                                   }
-                                  __pyx_t_129 = (__pyx_v_y + __pyx_v_j);
-                                  __pyx_t_130 = (0 <= __pyx_t_129);
+                                  __pyx_t_8 = (__pyx_v_y + __pyx_v_j);
+                                  __pyx_t_130 = (0 <= __pyx_t_8);
                                   if (__pyx_t_130) {
-                                    __pyx_t_130 = (__pyx_t_129 < (__pyx_v_world.shape[1]));
+                                    __pyx_t_130 = (__pyx_t_8 < (__pyx_v_world.shape[1]));
                                   }
-                                  __pyx_t_14 = (__pyx_t_130 != 0);
-                                  __pyx_t_1 = __pyx_t_14;
-                                  __pyx_L63_bool_binop_done:;
+                                  __pyx_t_17 = (__pyx_t_130 != 0);
+                                  __pyx_t_1 = __pyx_t_17;
+                                  __pyx_L69_bool_binop_done:;
                                   if (__pyx_t_1) {
 
-                                    /* "cells_world.pyx":186
+                                    /* "cells_world.pyx":243
  *                     for j in range(-influence_range, influence_range + 1):
  *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])             # <<<<<<<<<<<<<<
+ *                             if abs(k)<abs(j):
+ *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
+ */
+                                    omp_set_lock((&(__pyx_v_world_lock[((((__pyx_v_x + __pyx_v_k) * __pyx_v_rows) + __pyx_v_y) + __pyx_v_j)])));
+
+                                    /* "cells_world.pyx":244
+ *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
  *                             if abs(k)<abs(j):             # <<<<<<<<<<<<<<
  *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
  *                             else:
@@ -4343,8 +4850,8 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                     __pyx_t_1 = ((abs(__pyx_v_k) < abs(__pyx_v_j)) != 0);
                                     if (__pyx_t_1) {
 
-                                      /* "cells_world.pyx":187
- *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
+                                      /* "cells_world.pyx":245
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
  *                             if abs(k)<abs(j):
  *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)             # <<<<<<<<<<<<<<
  *                             else:
@@ -4356,21 +4863,21 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                       __pyx_t_134 = (__pyx_v_y + __pyx_v_j);
                                       *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_133 * __pyx_v_world.strides[0]) ) + __pyx_t_134 * __pyx_v_world.strides[1]) )) = ((((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_131 * __pyx_v_world.strides[0]) ) + __pyx_t_132 * __pyx_v_world.strides[1]) ))) + __pyx_v_influence_range) + 1.0) - abs(__pyx_v_j));
 
-                                      /* "cells_world.pyx":186
- *                     for j in range(-influence_range, influence_range + 1):
+                                      /* "cells_world.pyx":244
  *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
  *                             if abs(k)<abs(j):             # <<<<<<<<<<<<<<
  *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
  *                             else:
  */
-                                      goto __pyx_L65;
+                                      goto __pyx_L71;
                                     }
 
-                                    /* "cells_world.pyx":189
+                                    /* "cells_world.pyx":247
  *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
  *                             else:
  *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(k)             # <<<<<<<<<<<<<<
- *                 openmp.omp_unset_lock(&world_lock)
+ *                             openmp.omp_unset_lock(&world_lock[(x+k)*rows+y+j])
  *             # update cell's info
  */
                                     /*else*/ {
@@ -4380,39 +4887,39 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                                       __pyx_t_138 = (__pyx_v_y + __pyx_v_j);
                                       *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_137 * __pyx_v_world.strides[0]) ) + __pyx_t_138 * __pyx_v_world.strides[1]) )) = ((((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_world.data + __pyx_t_135 * __pyx_v_world.strides[0]) ) + __pyx_t_136 * __pyx_v_world.strides[1]) ))) + __pyx_v_influence_range) + 1.0) - abs(__pyx_v_k));
                                     }
-                                    __pyx_L65:;
+                                    __pyx_L71:;
 
-                                    /* "cells_world.pyx":185
+                                    /* "cells_world.pyx":248
+ *                             else:
+ *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(k)
+ *                             openmp.omp_unset_lock(&world_lock[(x+k)*rows+y+j])             # <<<<<<<<<<<<<<
+ *             # update cell's info
+ *             dictys[i, 0] = x
+ */
+                                    omp_unset_lock((&(__pyx_v_world_lock[((((__pyx_v_x + __pyx_v_k) * __pyx_v_rows) + __pyx_v_y) + __pyx_v_j)])));
+
+                                    /* "cells_world.pyx":242
  *                 for k in range(-influence_range, influence_range + 1):
  *                     for j in range(-influence_range, influence_range + 1):
  *                         if 0 <= x+k < world.shape[0] and 0 <= y+j < world.shape[1]:             # <<<<<<<<<<<<<<
+ *                             openmp.omp_set_lock(&world_lock[(x+k)*rows+y+j])
  *                             if abs(k)<abs(j):
- *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(j)
  */
                                   }
                                 }
                               }
 
-                              /* "cells_world.pyx":190
- *                             else:
- *                                 world[x+k,y+j] = world[x+k,y+j] + influence_range + 1 - abs(k)
- *                 openmp.omp_unset_lock(&world_lock)             # <<<<<<<<<<<<<<
- *             # update cell's info
- *             dictys[i, 0] = x
- */
-                              omp_unset_lock((&__pyx_v_world_lock));
-
-                              /* "cells_world.pyx":180
+                              /* "cells_world.pyx":238
  *             # starving or found cAMP
  *             # food signal goes from 0 to 1, more than 1 is cAMP
  *             if energy <= 0 or max >= 1:             # <<<<<<<<<<<<<<
- *                 openmp.omp_set_lock(&world_lock)
  *                 # generate cluster order signal to form slug
+ *                 for k in range(-influence_range, influence_range + 1):
  */
                             }
 
-                            /* "cells_world.pyx":192
- *                 openmp.omp_unset_lock(&world_lock)
+                            /* "cells_world.pyx":250
+ *                             openmp.omp_unset_lock(&world_lock[(x+k)*rows+y+j])
  *             # update cell's info
  *             dictys[i, 0] = x             # <<<<<<<<<<<<<<
  *             dictys[i, 1] = y
@@ -4422,22 +4929,23 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
                             __pyx_t_140 = 0;
                             *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_139 * __pyx_v_dictys.strides[0]) ) + __pyx_t_140 * __pyx_v_dictys.strides[1]) )) = __pyx_v_x;
 
-                            /* "cells_world.pyx":193
+                            /* "cells_world.pyx":251
  *             # update cell's info
  *             dictys[i, 0] = x
  *             dictys[i, 1] = y             # <<<<<<<<<<<<<<
  *             dictys[i, 2] = energy
- *     return 0
+ *     free(entity_lock)
  */
                             __pyx_t_141 = __pyx_v_i;
                             __pyx_t_142 = 1;
                             *((int *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_dictys.data + __pyx_t_141 * __pyx_v_dictys.strides[0]) ) + __pyx_t_142 * __pyx_v_dictys.strides[1]) )) = __pyx_v_y;
 
-                            /* "cells_world.pyx":194
+                            /* "cells_world.pyx":252
  *             dictys[i, 0] = x
  *             dictys[i, 1] = y
  *             dictys[i, 2] = energy             # <<<<<<<<<<<<<<
- *     return 0
+ *     free(entity_lock)
+ *     free(world_lock)
  */
                             __pyx_t_143 = __pyx_v_i;
                             __pyx_t_144 = 2;
@@ -4455,9 +4963,9 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
         #endif
       }
 
-      /* "cells_world.pyx":30
- *     openmp.omp_init_lock(&entity_lock)
- *     openmp.omp_init_lock(&world_lock)
+      /* "cells_world.pyx":40
+ *             openmp.omp_init_lock(&entity_lock[i*rows+j])
+ *             openmp.omp_init_lock(&world_lock[i*rows+j])
  *     with nogil, cython.boundscheck(False), cython.wraparound(False):             # <<<<<<<<<<<<<<
  *         for i in parallel.prange(n_dictys, schedule = 'static',
  *                                  num_threads = num_threads):
@@ -4468,15 +4976,32 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
-          goto __pyx_L6;
+          goto __pyx_L12;
         }
-        __pyx_L6:;
+        __pyx_L12:;
       }
   }
 
-  /* "cells_world.pyx":195
+  /* "cells_world.pyx":253
  *             dictys[i, 1] = y
  *             dictys[i, 2] = energy
+ *     free(entity_lock)             # <<<<<<<<<<<<<<
+ *     free(world_lock)
+ *     return 0
+ */
+  free(__pyx_v_entity_lock);
+
+  /* "cells_world.pyx":254
+ *             dictys[i, 2] = energy
+ *     free(entity_lock)
+ *     free(world_lock)             # <<<<<<<<<<<<<<
+ *     return 0
+ */
+  free(__pyx_v_world_lock);
+
+  /* "cells_world.pyx":255
+ *     free(entity_lock)
+ *     free(world_lock)
  *     return 0             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
@@ -18089,6 +18614,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
+  {&__pyx_n_s_rows, __pyx_k_rows, sizeof(__pyx_k_rows), 0, 0, 1, 1},
   {&__pyx_n_s_run_world, __pyx_k_run_world, sizeof(__pyx_k_run_world), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
@@ -18118,9 +18644,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 22, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 183, __pyx_L1_error)
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 30, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 36, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 151, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_Ellipsis = __Pyx_GetBuiltinName(__pyx_n_s_Ellipsis); if (!__pyx_builtin_Ellipsis) __PYX_ERR(1, 400, __pyx_L1_error)
@@ -18135,14 +18661,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "cells_world.pyx":22
- *     cdef openmp.omp_lock_t entity_lock, world_lock
+  /* "cells_world.pyx":30
+ *         raise MemoryError()
  *     if world.shape[0] * world.shape[1] < dictys.shape[0]:
  *         raise ValueError('Too many dictys')             # <<<<<<<<<<<<<<
  *     n_dictys = dictys.shape[0]
  *     vision = []
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Too_many_dictys); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Too_many_dictys); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
@@ -18345,10 +18871,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *               int[:,:] entity_map not None,
  *               int[:,:] dictys not None,
  */
-  __pyx_tuple__20 = PyTuple_Pack(23, __pyx_n_s_world, __pyx_n_s_entity_map, __pyx_n_s_dictys, __pyx_n_s_num_threads, __pyx_n_s_n_dictys, __pyx_n_s_new_x, __pyx_n_s_new_y, __pyx_n_s_vision_x, __pyx_n_s_vision_y, __pyx_n_s_influence_range, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_energy, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_max, __pyx_n_s_vision_value, __pyx_n_s_chem_food, __pyx_n_s_chem_decay, __pyx_n_s_entity_lock, __pyx_n_s_world_lock, __pyx_n_s_vision); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(24, __pyx_n_s_world, __pyx_n_s_entity_map, __pyx_n_s_dictys, __pyx_n_s_num_threads, __pyx_n_s_n_dictys, __pyx_n_s_new_x, __pyx_n_s_new_y, __pyx_n_s_vision_x, __pyx_n_s_vision_y, __pyx_n_s_influence_range, __pyx_n_s_rows, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_k, __pyx_n_s_energy, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_max, __pyx_n_s_vision_value, __pyx_n_s_chem_food, __pyx_n_s_chem_decay, __pyx_n_s_entity_lock, __pyx_n_s_world_lock, __pyx_n_s_vision); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
-  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(4, 0, 23, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cells_world_pyx, __pyx_n_s_run_world, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(4, 0, 24, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cells_world_pyx, __pyx_n_s_run_world, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 13, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -18770,7 +19296,7 @@ if (!__Pyx_RefNanny) {
  * import numpy as np
  * from cython cimport parallel
  * from random import randint             # <<<<<<<<<<<<<<
- * from libc.stdlib cimport rand, abs
+ * from libc.stdlib cimport rand, abs, malloc, free
  * cimport openmp
  */
   __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
