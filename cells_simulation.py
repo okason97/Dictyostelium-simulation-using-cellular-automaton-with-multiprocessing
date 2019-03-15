@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
 
-m = 32
+m = 128
 world = np.zeros((m,m))
 entity_map = np.zeros((m,m), dtype=np.intc)
-n_dictys = 40
-n_food = 50
+n_dictys = 256
+n_food = 128
 starting_energy = 30
 dictys = np.full((n_dictys,3),starting_energy, dtype=np.intc)
 

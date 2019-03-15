@@ -22,7 +22,7 @@ def run_world(double[:,:] world not None,
         raise ValueError('Too many dictys')
     n_dictys = dictys.shape[0]
     vision = []
-    influence_range = 10
+    influence_range = 100
     chem_decay = 0.01
     chem_food = 0.1
     openmp.omp_init_lock(&entity_lock)
@@ -113,6 +113,42 @@ def run_world(double[:,:] world not None,
                     entity_map[x, y] = 0
                     x = new_x
                     y = new_y
+                else:
+                    if new_x == x:
+                        new_x = new_x + 1 - 2*(rand() % (1 + 1 - 0) + 0)
+                    elif new_y == y:
+                        new_y = new_y + 1 - 2*(rand() % (1 + 1 - 0) + 0)
+                    else:
+                        if rand() & 1:
+                            new_x = x
+                        else:
+                            new_y = y
+                    if entity_map[new_x, new_y] != 2:
+                        if entity_map[new_x, new_y] == 1:
+                            energy = energy + 4
+                            openmp.omp_set_lock(&world_lock)
+                            world[new_x,new_y] = world[new_x,new_y] - chem_food
+                            if new_x != 0:
+                                world[new_x-1,new_y] = world[new_x-1,new_y] - chem_decay
+                            if new_x != world.shape[0] - 1:
+                                world[new_x+1,new_y] = world[new_x+1,new_y] - chem_decay
+                            if new_y != 0:
+                                world[new_x,new_y-1] = world[new_x,new_y-1] - chem_decay
+                                if new_x != 0:
+                                    world[new_x-1,new_y-1] = world[new_x-1,new_y-1] - chem_decay
+                                if new_x != world.shape[0] - 1:
+                                    world[new_x+1,new_y-1] = world[new_x+1,new_y-1] - chem_decay
+                            if new_y != world.shape[1] - 1:
+                                world[new_x,new_y+1] = world[new_x,new_y+1] - chem_decay
+                                if new_x != 0:
+                                    world[new_x-1,new_y+1] = world[new_x-1,new_y+1] - chem_decay
+                                if new_x != world.shape[0] - 1:
+                                    world[new_x+1,new_y+1] = world[new_x+1,new_y+1] - chem_decay
+                            openmp.omp_unset_lock(&world_lock)
+                        entity_map[new_x, new_y] = 2
+                        entity_map[x, y] = 0
+                        x = new_x
+                        y = new_y
                 openmp.omp_unset_lock(&entity_lock)
             # didn't find any chem signal go to a random place
             else:
