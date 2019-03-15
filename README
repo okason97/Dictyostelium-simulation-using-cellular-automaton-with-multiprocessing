@@ -1,4 +1,5 @@
 To run type
+python3 setup.py build_ext --inplace
 python3 cells_simulation.py
 
 To apply modifications to the cells behaviour
