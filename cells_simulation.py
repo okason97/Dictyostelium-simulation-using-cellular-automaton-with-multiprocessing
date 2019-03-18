@@ -14,8 +14,8 @@ m = 128
 num_threads = 6
 world = np.zeros((m,m))
 entity_map = np.zeros((m,m), dtype=np.intc)
-n_dictys = 6000
-n_food = 4000
+n_dictys = 1024
+n_food = 1024
 starting_energy = 10
 dictys = np.full((n_dictys,3),starting_energy, dtype=np.intc)
 
@@ -63,5 +63,5 @@ for i in range(50):
     ax = fig.add_subplot(111)
     ax.imshow(entity_map)
     plt.draw()
-    plt.pause(0.1)
-time.sleep(5)
+    # plt.pause(0.1)
+# time.sleep(5)
