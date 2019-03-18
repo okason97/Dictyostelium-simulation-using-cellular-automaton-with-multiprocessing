@@ -10,12 +10,12 @@ def run_world(world, entity_map, dictys, num_threads = 2):
     cells_world.run_world(world, entity_map, dictys, num_threads)
     return world, entity_map, dictys
 
-m = 32
+m = 128
 num_threads = 6
 world = np.zeros((m,m))
 entity_map = np.zeros((m,m), dtype=np.intc)
-n_dictys = 126
-n_food = 126
+n_dictys = 6000
+n_food = 4000
 starting_energy = 10
 dictys = np.full((n_dictys,3),starting_energy, dtype=np.intc)
 
@@ -55,14 +55,13 @@ plt.draw()
 # for humans to see, cells are too fast
 plt.pause(0.3)
 
-for i in range(100):
+for i in range(50):
 
     # update
     world, entity_map, dictys = run_world(world, entity_map, dictys, num_threads)
 
     ax = fig.add_subplot(111)
     ax.imshow(entity_map)
-    # print(np.matrix(dictys))
     plt.draw()
-    plt.pause(0.3)
-time.sleep(10)
+    plt.pause(0.1)
+time.sleep(5)
