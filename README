@@ -1,6 +1,13 @@
-To run type
+To run first install cython, then type
 python3 setup.py build_ext --inplace
 python3 cells_simulation.py
 
 To apply modifications to the cells behaviour
 python3 setup.py build_ext --inplace
+
+Modify influence_range to modify cells agroupation range of influence.
+Modify 128 to change world size
+Modify num_threads to change the number of threads
+Modify n_dictys to change ammount of cells 
+Modify n_food to change ammount of food available
+Modify starting_energy to change cells starting energy
