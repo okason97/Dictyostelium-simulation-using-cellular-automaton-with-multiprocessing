@@ -55,7 +55,7 @@ plt.draw()
 # for humans to see, cells are too fast
 plt.pause(0.3)
 
-for i in range(50):
+for i in range(100):
 
     # update
     world, entity_map, dictys = run_world(world, entity_map, dictys, num_threads)
@@ -63,5 +63,5 @@ for i in range(50):
     ax = fig.add_subplot(111)
     ax.imshow(entity_map)
     plt.draw()
-    # plt.pause(0.1)
-# time.sleep(5)
+    plt.pause(0.1)
+time.sleep(5)

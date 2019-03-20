@@ -35,7 +35,7 @@ def run_world(double[:,:] world not None,
         raise ValueError('Too many dictys')
     n_dictys = dictys.shape[0]
     vision = []
-    influence_range = 100
+    influence_range = 40
     chem_decay = 0.01
     chem_food = 0.1
     for i in range(rows):

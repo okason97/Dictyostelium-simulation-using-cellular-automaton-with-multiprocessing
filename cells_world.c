@@ -2803,7 +2803,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  *         raise ValueError('Too many dictys')
  *     n_dictys = dictys.shape[0]             # <<<<<<<<<<<<<<
  *     vision = []
- *     influence_range = 100
+ *     influence_range = 40
  */
   __pyx_v_n_dictys = (__pyx_v_dictys.shape[0]);
 
@@ -2811,7 +2811,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
  *         raise ValueError('Too many dictys')
  *     n_dictys = dictys.shape[0]
  *     vision = []             # <<<<<<<<<<<<<<
- *     influence_range = 100
+ *     influence_range = 40
  *     chem_decay = 0.01
  */
   __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
@@ -2822,15 +2822,15 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   /* "cells_world.pyx":38
  *     n_dictys = dictys.shape[0]
  *     vision = []
- *     influence_range = 100             # <<<<<<<<<<<<<<
+ *     influence_range = 40             # <<<<<<<<<<<<<<
  *     chem_decay = 0.01
  *     chem_food = 0.1
  */
-  __pyx_v_influence_range = 0x64;
+  __pyx_v_influence_range = 40;
 
   /* "cells_world.pyx":39
  *     vision = []
- *     influence_range = 100
+ *     influence_range = 40
  *     chem_decay = 0.01             # <<<<<<<<<<<<<<
  *     chem_food = 0.1
  *     for i in range(rows):
@@ -2838,7 +2838,7 @@ static PyObject *__pyx_pf_11cells_world_run_world(CYTHON_UNUSED PyObject *__pyx_
   __pyx_v_chem_decay = 0.01;
 
   /* "cells_world.pyx":40
- *     influence_range = 100
+ *     influence_range = 40
  *     chem_decay = 0.01
  *     chem_food = 0.1             # <<<<<<<<<<<<<<
  *     for i in range(rows):
